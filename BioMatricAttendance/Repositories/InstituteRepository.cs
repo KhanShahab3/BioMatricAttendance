@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Repositories
 {
-    public class InstituteRepository
+    public class InstituteRepository:IInstituteRepository
     {
         private readonly AppDbContext _appContext;
         public InstituteRepository(AppDbContext appDbContext)

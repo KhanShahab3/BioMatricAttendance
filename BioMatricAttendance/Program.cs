@@ -18,6 +18,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBioMatricDeviceRepository, BioMatricDeviceRepository>();
+builder.Services.AddScoped<IBioMatricDeviceService, BioMatricDeviceService>();
+builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
+builder.Services.AddScoped<IInstituteService, InstituteService>();
+
 
 var app = builder.Build();
 
