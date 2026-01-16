@@ -16,12 +16,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+builder.Services.AddScoped<IAttendanceProcessingService, AttendanceProcessingService>();
+builder.Services.AddScoped<IAttendanceProcessingRepository, AttendanceProcessingRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBioMatricDeviceRepository, BioMatricDeviceRepository>();
 builder.Services.AddScoped<IBioMatricDeviceService, BioMatricDeviceService>();
 builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
 builder.Services.AddScoped<IInstituteService, InstituteService>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 
 var app = builder.Build();

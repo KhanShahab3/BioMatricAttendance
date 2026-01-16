@@ -18,6 +18,7 @@ namespace BioMatricAttendance.Services
         {
             return await _instituteRepository.GetInstituteById(id);
         }
+        
         public async Task<List<Institute>> GetInstitutes()
         {
             return await _instituteRepository.GetAllInstitutes();

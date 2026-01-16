@@ -3,6 +3,7 @@ using System;
 using BioMatricAttendance.AttendenceContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BioMatricAttendance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260112160100_NewTbales")]
+    partial class NewTbales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,9 +35,6 @@ namespace BioMatricAttendance.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeviceId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("DeviceName")
                         .IsRequired()
@@ -112,39 +112,6 @@ namespace BioMatricAttendance.Migrations
                     b.HasIndex("InstituteId");
 
                     b.ToTable("Courses");
-                });
-
-            modelBuilder.Entity("BioMatricAttendance.Models.DeviceAttendanceLogs", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AttendType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("BiomerticUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("DeviceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("DeviceName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("PunchTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeviceAttendanceLogs");
                 });
 
             modelBuilder.Entity("BioMatricAttendance.Models.Faculity", b =>
@@ -325,7 +292,7 @@ namespace BioMatricAttendance.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -350,7 +317,57 @@ namespace BioMatricAttendance.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("BioMatricAttendance.Models.Student", b =>
+            modelBuilder.Entity("BioMatricAttendance.Models.StudentAttendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AttendanceDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CheckIn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("CheckOut")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InstituteId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("InstituteId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("StudentAttendances");
+                });
+
+            modelBuilder.Entity("BioMatricAttendance.Models.Students", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -406,56 +423,6 @@ namespace BioMatricAttendance.Migrations
                     b.HasIndex("InstituteId");
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("BioMatricAttendance.Models.StudentAttendance", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AttendanceDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("CheckIn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("CheckOut")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("DeviceId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("InstituteId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("InstituteId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("StudentAttendances");
                 });
 
             modelBuilder.Entity("BioMatricAttendance.Models.User", b =>
@@ -556,25 +523,6 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("Region");
                 });
 
-            modelBuilder.Entity("BioMatricAttendance.Models.Student", b =>
-                {
-                    b.HasOne("BioMatricAttendance.Models.Course", "Course")
-                        .WithMany("Students")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BioMatricAttendance.Models.Institute", "Institute")
-                        .WithMany("Students")
-                        .HasForeignKey("InstituteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Institute");
-                });
-
             modelBuilder.Entity("BioMatricAttendance.Models.StudentAttendance", b =>
                 {
                     b.HasOne("BioMatricAttendance.Models.Course", "Course")
@@ -589,7 +537,7 @@ namespace BioMatricAttendance.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BioMatricAttendance.Models.Student", "Student")
+                    b.HasOne("BioMatricAttendance.Models.Students", "Student")
                         .WithMany("Attendances")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -600,6 +548,25 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("Institute");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("BioMatricAttendance.Models.Students", b =>
+                {
+                    b.HasOne("BioMatricAttendance.Models.Course", "Course")
+                        .WithMany("Students")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BioMatricAttendance.Models.Institute", "Institute")
+                        .WithMany("Students")
+                        .HasForeignKey("InstituteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Institute");
                 });
 
             modelBuilder.Entity("BioMatricAttendance.Models.Course", b =>
@@ -634,7 +601,7 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("Institutes");
                 });
 
-            modelBuilder.Entity("BioMatricAttendance.Models.Student", b =>
+            modelBuilder.Entity("BioMatricAttendance.Models.Students", b =>
                 {
                     b.Navigation("Attendances");
                 });
