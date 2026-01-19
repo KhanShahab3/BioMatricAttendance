@@ -34,7 +34,7 @@ namespace BioMatricAttendance.Repositories
             {
                 isDevice.DeviceName = device.DeviceName;
                 isDevice.IPAddress = device.IPAddress;
-                isDevice.Location = device.Location;
+              
                 await _appContext.SaveChangesAsync();
             }
             return device;

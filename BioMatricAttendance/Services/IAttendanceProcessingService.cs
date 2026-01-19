@@ -5,6 +5,7 @@ namespace BioMatricAttendance.Services
 {
     public interface IAttendanceProcessingService
     {
-        Task<AttendanceReportDto> ProcessFacultyAttendanceAsync(DateTime startDate, DateTime endDate, long deviceId);
+        Task<List<AttendanceReportDto>> ProcessFacultyAttendanceAsync(
+        DateTime startDate, DateTime endDate, int instituteId);
     }
 }

@@ -14,9 +14,9 @@ namespace BioMatricAttendance.Controllers
             _attendanceProcessingService = attendanceProcessingService;
         }
         [HttpGet("process")]
-       public async Task<IActionResult> ProcessAttendance([FromQuery] DateTime startDate, DateTime endDate, long deviceId)
+       public async Task<IActionResult> ProcessAttendance([FromQuery] DateTime startDate, DateTime endDate, int instituteId)
         {
-            var logs=await _attendanceProcessingService.ProcessFacultyAttendanceAsync(startDate, endDate,deviceId);
+            var logs=await _attendanceProcessingService.ProcessFacultyAttendanceAsync(startDate, endDate,instituteId);
             return Ok(new
             {
                 Success = true,

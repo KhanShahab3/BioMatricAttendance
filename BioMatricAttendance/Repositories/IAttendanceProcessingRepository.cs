@@ -6,6 +6,7 @@ namespace BioMatricAttendance.Repositories
     public interface IAttendanceProcessingRepository
     {
 
-        Task<AttendanceReportDto> GetAttendanceReport(DateTime startTime, DateTime endTime, long? deviceId = null);
+        Task<List<AttendanceReportDto>> ProcessAttendance(
+      DateTime startDate, DateTime endDate, long instituteId);
     }
 }

@@ -2,11 +2,12 @@
 {
     public class AttendanceReportDto
     {
-        public DateTime From { get; set; }                     
-        public DateTime To { get; set; }                      
-        public int TotalFaculty { get; set; }                   
-        public int TotalStudents { get; set; }                 
-        public List<AttendanceRecordDTO> FacultyRecords { get; set; }  
-        public List<AttendanceRecordDTO> StudentRecords { get; set; }
+        public int CandidateId { get; set; }
+        public string CandidateName { get; set; }
+        public string CandidateType { get; set; } 
+        public DateTime Date { get; set; }
+        public DateTime CheckIn { get; set; }
+        public DateTime CheckOut { get; set; }
+        public TimeSpan TotalHours { get; set; }
     }
 }
