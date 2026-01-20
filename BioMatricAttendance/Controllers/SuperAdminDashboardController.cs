@@ -31,18 +31,18 @@ namespace BioMatricAttendance.Controllers
                 Data = result
             });
         }
-        [HttpGet("InstituteTable")]
-        public async Task<IActionResult> InstituteTable([FromQuery] int? regionId)
-        {
-            var result = await _dashboardService.InstituteTableAsync(regionId);
-            return Ok(new APIResponse<object>
-            {
-                Sucess = true,
-                Message = "Institute Table Data Retrieved Successfully",
-                StatusCode = StatusCodes.Status200OK,
-                Data = result
-            });
-        }
+        //[HttpGet("InstituteTable")]
+        //public async Task<IActionResult> InstituteTable([FromQuery] int? regionId)
+        //{
+        //    var result = await _dashboardService.InstituteTableAsync(regionId);
+        //    return Ok(new APIResponse<object>
+        //    {
+        //        Sucess = true,
+        //        Message = "Institute Table Data Retrieved Successfully",
+        //        StatusCode = StatusCodes.Status200OK,
+        //        Data = result
+        //    });
+        //}
 
     }
 }

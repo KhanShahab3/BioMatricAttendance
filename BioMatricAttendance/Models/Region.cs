@@ -7,9 +7,8 @@
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }= false;
-        //public int District { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
-        public List<Institute>? Institutes { get; set; }
+        public ICollection<Institute> Institutes { get; set; }
     }
 }

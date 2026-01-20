@@ -15,9 +15,9 @@ namespace BioMatricAttendance.Services
             return await _dashboardRepository.GetSuperAdminDashboardAsync(regionId);
         }
 
-        public async Task<List<InstituteDashboardRowDto>> InstituteTableAsync(int? regionId)
-        {
-            return await _dashboardRepository.GetInstituteTableAsync(regionId);
-        }
+        //public async Task<List<InstituteDashboardRowDto>> InstituteTableAsync(int? regionId)
+        //{
+        //    return await _dashboardRepository.GetInstituteTableAsync(regionId);
+        //}
     }
 }

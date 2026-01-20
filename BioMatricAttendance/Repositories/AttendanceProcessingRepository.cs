@@ -1,6 +1,7 @@
 ﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Repositories
@@ -15,99 +16,77 @@ namespace BioMatricAttendance.Repositories
         }
 
         public async Task<List<AttendanceReportDto>> ProcessAttendance(
-     DateTime startDate, DateTime endDate, long instituteId)
+        DateTime startDate, DateTime endDate, long instituteId)
         {
-            // Get all devices for this institute
-            var devices = await _appContext.BiomatricDevices
-                .Where(d => d.InstituteId == instituteId)
-                .ToListAsync();
+            //1.Get all devices for this institute
+
+           List <BiomatricDevice> devices = await _appContext.BiomatricDevices
+               .Where(d => d.InstituteId == instituteId)
+               .ToListAsync();
 
             if (!devices.Any())
-            {
-                return await GetExistingReport(instituteId, startDate, endDate);
-            }
+                    return new List<AttendanceReportDto>();
 
-            var serialNumbers = devices.Select(d => d.DeviceId).ToList();
+            var deviceIds = devices.Select(d => d.DeviceId).ToList();
 
-            // Get TimeLogs for all devices in this institute using deviceId
-            var rawData = await _appContext.DeviceAttendanceLogs
-         .Where(l => serialNumbers.Contains(l.DeviceId) &&  
-                     l.PunchTime >= startDate &&
-                     l.PunchTime <= endDate &&
-                     !l.IsProcessed)
-         .ToListAsync();
+
+            var rawData = await _appContext.TimeLogs
+                .Where(l => deviceIds.Contains(l.DeviceId) &&
+                            l.PunchTime >= startDate &&
+                            l.PunchTime <= endDate)
+                .ToListAsync();
+
+            //            var rawData = await (
+            //    from log in _appContext.TimeLogs
+            //    join dev in _appContext.BiomatricDevices
+            //        on log.DeviceId equals dev.DeviceId
+            //    where dev.InstituteId == instituteId &&
+            //          log.PunchTime >= startDate &&
+            //          log.PunchTime <= endDate
+            //    select log
+            //).ToListAsync();
+
+
+
+
 
             if (!rawData.Any())
-            {
-                return await GetExistingReport(instituteId, startDate, endDate);
-            }
+                return new List<AttendanceReportDto>();
 
-            // Group by CandidateId and Date
-            var attendanceList = rawData
+          
+            var candidateIds = rawData.Select(r => (int)r.DeviceUserId).Distinct().ToList();
+            var candidates = await _appContext.Candidates
+                .Where(c => candidateIds.Contains(c.Id) && deviceIds.Contains(c.DeviceId))
+                .ToListAsync();
+
+            
+            var report = rawData
+                .Where(r => candidates.Any(c => c.Id == r.DeviceUserId))
                 .GroupBy(t => new { t.DeviceUserId, Date = t.PunchTime.Date })
                 .Select(g => new
                 {
-                    CandidateId = g.Key.DeviceUserId,
+                    CandidateId = (int)g.Key.DeviceUserId,
                     Date = g.Key.Date,
-                    CheckIn = g.Where(x => x.AttendType == "DutyOn")
-                               .Min(x => (DateTime?)x.PunchTime),
-                    CheckOut = g.Where(x => x.AttendType == "DutyOff")
-                                .Max(x => (DateTime?)x.PunchTime)
+                    CheckIn = g.Where(x => x.AttendType == "DutyOn").Min(x => (DateTime?)x.PunchTime),
+                    CheckOut = g.Where(x => x.AttendType == "DutyOff").Max(x => (DateTime?)x.PunchTime)
                 })
-                .ToList();
-
-            // Save to Attendance table
-            //foreach (var att in attendanceList)
-            //{
-            //    if (!att.CheckIn.HasValue || !att.CheckOut.HasValue)
-            //        continue;
-
-            //    var existingAttendance = await _appContext.Attendances
-            //        .FirstOrDefaultAsync(a => a.CandidateId == att.CandidateId &&
-            //                                  a.Date == att.Date);
-
-            //    if (existingAttendance == null)
-            //    {
-            //        var attendance = new Attendance
-            //        {
-            //            CandidateId = att.CandidateId,
-            //            Date = att.Date,
-            //            CheckIn = att.CheckIn.Value,
-            //            CheckOut = att.CheckOut.Value,
-            //            InstituteId = att.InstituteId,
-            //        };
-            //        _appContext.Attendances.Add(attendance);
-            //    }
-            //}
-
-            await _appContext.SaveChangesAsync();
-
-            return await GetExistingReport(instituteId, startDate, endDate);
-        }
-
-        private async Task<List<AttendanceReportDto>> GetExistingReport(
-            long instituteId, DateTime startDate, DateTime endDate)
-        {
-            var report = await _appContext.Attendances
-                .Where(a => a.InstituteId == instituteId &&
-                            a.Date >= startDate.Date &&
-                            a.Date <= endDate.Date)
-                .Join(_appContext.Candidates,
+                .Where(a => a.CheckIn.HasValue && a.CheckOut.HasValue)
+                .Join(candidates,
                       att => att.CandidateId,
-                      person => person.Id,
-                      (att, person) => new AttendanceReportDto
+                      c => c.Id,
+                      (att, c) => new AttendanceReportDto
                       {
-                          CandidateId = person.Id,
-                          CandidateName = person.FullName,
-                          CandidateType = person.CandidateType,
+                          CandidateId = c.Id,
+                          CandidateName = c.Name,
+                          CandidateType = c.Previliges,
                           Date = att.Date,
-                          CheckIn = att.CheckIn,
-                          CheckOut = att.CheckOut,
-                          TotalHours = att.CheckOut - att.CheckIn
+                          CheckIn = att.CheckIn.Value,
+                          CheckOut = att.CheckOut.Value,
+                          TotalHours = att.CheckOut.Value - att.CheckIn.Value
                       })
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.CandidateName)
-                .ToListAsync();
+                .ToList();
 
             return report;
         }

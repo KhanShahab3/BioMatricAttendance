@@ -32,8 +32,7 @@ namespace BioMatricAttendance.Repositories
             var isDevice = await _appContext.BiomatricDevices.FindAsync(device.Id);
             if (isDevice != null)
             {
-                isDevice.DeviceName = device.DeviceName;
-                isDevice.IPAddress = device.IPAddress;
+               
               
                 await _appContext.SaveChangesAsync();
             }

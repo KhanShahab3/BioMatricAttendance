@@ -24,6 +24,8 @@ builder.Services.AddScoped<IBioMatricDeviceRepository, BioMatricDeviceRepository
 builder.Services.AddScoped<IBioMatricDeviceService, BioMatricDeviceService>();
 builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
 builder.Services.AddScoped<IInstituteService, InstituteService>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 
 

@@ -12,19 +12,19 @@ namespace BioMatricAttendance.Repositories
         }
         public async Task<List<User>> GetAllUsers()
         {
-            var users = await _appContext.Users.ToListAsync();
+            var users = await _appContext.AppUsers.ToListAsync();
             return users;
         }
         public async Task<User> AddUser(User user)
         {
             
-                await _appContext.Users.AddAsync(user);
+                await _appContext.AppUsers.AddAsync(user);
                await _appContext.SaveChangesAsync();
                 return user;
         }
          public async Task<User> GetUserById(int id)
         {
-            var user = await _appContext.Users.FindAsync(id);
+            var user = await _appContext.AppUsers.FindAsync(id);
             return user;
         }
         public async Task<User> UpdateUser(User user)
@@ -33,7 +33,7 @@ namespace BioMatricAttendance.Repositories
             {
                 var isUser = await _appContext
 
-                    .Users.FindAsync(user.Id);
+                    .AppUsers.FindAsync(user.Id);
 
                 if (isUser != null)
                 {
@@ -54,7 +54,7 @@ namespace BioMatricAttendance.Repositories
         }
         public async Task<bool> DeleteUser(int id)
         {
-            var isUser = await _appContext.Users.FindAsync(id);
+            var isUser = await _appContext.AppUsers.FindAsync(id);
             if (isUser != null)
             {
                 _appContext.Remove(isUser);
