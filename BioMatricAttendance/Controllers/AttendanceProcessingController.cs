@@ -25,5 +25,7 @@ namespace BioMatricAttendance.Controllers
                 Data = logs
             });
         }
+
+        
     }
 }

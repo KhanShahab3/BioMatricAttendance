@@ -31,6 +31,18 @@ namespace BioMatricAttendance.Controllers
                 Data = result
             });
         }
+        [HttpGet("GetAttendanceReport")]
+        public async Task<IActionResult> GetAttendanceReport([FromQuery] int? regionId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        {
+            var result = await _dashboardService.GetAttendanceReportAsync(regionId, startDate, endDate);
+            return Ok(new APIResponse<object>
+            {
+                Sucess = true,
+                Message = "Attendance Report Data Retrieved Successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = result
+            });
+        }
         //[HttpGet("InstituteTable")]
         //public async Task<IActionResult> InstituteTable([FromQuery] int? regionId)
         //{

@@ -114,7 +114,15 @@ namespace BioMatricAttendance.Repositories
         //}
         public async Task<SuperAdminDashboardDto> GetSuperAdminDashboardAsync(int? regionId)
         {
-            var today = DateTime.UtcNow.Date;
+            const int PakistanUtcOffset = 5;
+
+          
+            var nowUtc = DateTime.UtcNow;
+            var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
+            var todayPakistan = nowPakistan.Date;
+            var todayStartUtc = todayPakistan.AddHours(-PakistanUtcOffset);
+            var todayEndUtc = todayStartUtc.AddDays(1);
+
             var institutesQuery = _context.Institutes
                 .Include(i => i.Region)
                 .Include(i => i.BiomatricDevices)
@@ -135,24 +143,21 @@ namespace BioMatricAttendance.Repositories
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
 
-           
             var allCandidates = await _context.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable)
                 .ToListAsync();
 
-            var faculty = allCandidates.Where(c => c.Previliges == "Manager" ).ToList();
+            var faculty = allCandidates.Where(c => c.Previliges == "Manager").ToList();
             var students = allCandidates.Where(c => c.Previliges == "NormalUser").ToList();
 
-          
-            
-            var todayStart = DateTime.UtcNow.AddHours(-5);
-            var todayEnd = today.AddDays(1);
+            // Query with UTC times
             var todayLogs = await _context.TimeLogs
-       .Where(t => deviceIds.Contains(t.DeviceId) &&
-                   t.PunchTime >= todayStart &&
-                     t.PunchTime < todayStart.AddDays(1) &&
-                   t.DeviceUserId > 0)
-       .ToListAsync();
+                .Where(t => deviceIds.Contains(t.DeviceId) &&
+                            t.PunchTime >= todayStartUtc &&
+                            t.PunchTime < todayEndUtc &&
+                            t.DeviceUserId > 0)
+                .ToListAsync();
+
             var presentCandidateIds = todayLogs
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
@@ -161,11 +166,9 @@ namespace BioMatricAttendance.Repositories
             var facultyPresent = faculty.Count(f => presentCandidateIds.Contains(f.DeviceUserId));
             var studentsPresent = students.Count(s => presentCandidateIds.Contains(s.DeviceUserId));
 
-           
             var activeDeviceIds = todayLogs.Select(t => t.DeviceId).Distinct().ToList();
             var devicesActive = devices.Count(d => activeDeviceIds.Contains(d.DeviceId));
 
-           
             var totalFaculty = faculty.Count;
             var totalStudents = students.Count;
             var facultyPresentPct = totalFaculty > 0 ? (facultyPresent * 100 / totalFaculty) : 0;
@@ -173,7 +176,6 @@ namespace BioMatricAttendance.Repositories
             var studentsPresentPct = totalStudents > 0 ? (studentsPresent * 100 / totalStudents) : 0;
             var studentsAbsentPct = 100 - studentsPresentPct;
 
-           
             var instituteRows = new List<InstituteDashboardRowDto>();
 
             foreach (var institute in institutes)
@@ -182,8 +184,8 @@ namespace BioMatricAttendance.Repositories
                 var instituteDeviceIds = instituteDevices.Select(d => d.DeviceId).ToList();
 
                 var instituteCandidates = allCandidates.Where(c => instituteDeviceIds.Contains(c.DeviceId)).ToList();
-                var instituteFaculty = instituteCandidates.Where(c => c.Previliges == "Faculty" || c.Previliges == "Teacher").ToList();
-                var instituteStudents = instituteCandidates.Where(c => c.Previliges == "Student").ToList();
+                var instituteFaculty = instituteCandidates.Where(c => c.Previliges == "Manager").ToList();
+                var instituteStudents = instituteCandidates.Where(c => c.Previliges == "NormalUser").ToList();
 
                 var instituteTodayLogs = todayLogs.Where(t => instituteDeviceIds.Contains(t.DeviceId)).ToList();
                 var institutePresentIds = instituteTodayLogs.Select(t => (int)t.DeviceUserId).Distinct().ToList();
@@ -203,7 +205,6 @@ namespace BioMatricAttendance.Repositories
                 });
             }
 
-            
             return new SuperAdminDashboardDto
             {
                 TotalInstitutes = institutes.Count,
@@ -262,7 +263,169 @@ namespace BioMatricAttendance.Repositories
         //        })
         //        .ToListAsync();
         //}
+        public async Task<AttendanceDetailedReportDto> GetDetailedAttendanceReportAsync(
+    int? regionId,
+    DateTime? startDate,
+    DateTime? endDate)
+        {
+            const int PakistanUtcOffset = 5;
 
+            var nowUtc = DateTime.UtcNow;
+            var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
+            var todayPakistan = nowPakistan.Date;
+
+            var reportStartLocal = startDate ?? todayPakistan;
+            var reportEndLocal = endDate ?? todayPakistan;
+
+            var reportStartUtc = reportStartLocal.AddHours(-PakistanUtcOffset);
+            var reportEndUtc = reportEndLocal.AddDays(1).AddHours(-PakistanUtcOffset);
+
+            // Filter institutes
+            var institutesQuery = _context.Institutes
+                .Include(i => i.Region)
+                .Where(i => !i.IsDeleted);
+
+            if (regionId.HasValue && regionId.Value > 0)
+            {
+                institutesQuery = institutesQuery.Where(i => i.RegionId == regionId.Value);
+            }
+
+            var institutes = await institutesQuery.ToListAsync();
+            var instituteIds = institutes.Select(i => i.Id).ToList();
+
+            // Get devices
+            var devices = await _context.BiomatricDevices
+                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted)
+                .ToListAsync();
+
+            var deviceIds = devices.Select(d => d.DeviceId).ToList();
+
+            // Get all candidates
+            var allCandidates = await _context.Candidates
+                .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable)
+                .ToListAsync();
+
+            // Get logs for date range
+            var logs = await _context.TimeLogs
+                .Where(t => deviceIds.Contains(t.DeviceId) &&
+                            t.PunchTime >= reportStartUtc &&
+                            t.PunchTime < reportEndUtc &&
+                            t.DeviceUserId > 0)
+                .ToListAsync();
+
+            var presentCandidateIds = logs
+                .Select(t => (int)t.DeviceUserId)
+                .Distinct()
+                .ToList();
+
+            // Build Faculty Report (institute-wise)
+            var facultyReport = new List<InstituteAttendanceRowDto>();
+
+            foreach (var institute in institutes)
+            {
+                var instituteDeviceIds = devices
+                    .Where(d => d.InstituteId == institute.Id)
+                    .Select(d => d.DeviceId)
+                    .ToList();
+
+                var instituteFaculty = allCandidates
+                    .Where(c => instituteDeviceIds.Contains(c.DeviceId) &&
+                               c.Previliges == "Manager")
+                    .ToList();
+
+                var totalFaculty = instituteFaculty.Count;
+                if (totalFaculty == 0) continue;
+
+                var facultyPresent = instituteFaculty.Count(f => presentCandidateIds.Contains(f.DeviceUserId));
+                var facultyAbsent = totalFaculty - facultyPresent;
+                var attendancePct = (decimal)facultyPresent / totalFaculty * 100;
+
+                facultyReport.Add(new InstituteAttendanceRowDto
+                {
+                    InstituteName = institute.InstituteName,
+                    Region = institute.Region?.RegionName ?? "",
+                    Total = totalFaculty,
+                    Present = facultyPresent,
+                    Absent = facultyAbsent,
+                    AttendancePercentage = Math.Round(attendancePct, 1),
+                    Status = GetAttendanceStatus(attendancePct)
+                });
+            }
+
+            // Build Student Report (institute-wise)
+            var studentReport = new List<InstituteAttendanceRowDto>();
+
+            foreach (var institute in institutes)
+            {
+                var instituteDeviceIds = devices
+                    .Where(d => d.InstituteId == institute.Id)
+                    .Select(d => d.DeviceId)
+                    .ToList();
+
+                var instituteStudents = allCandidates
+                    .Where(c => instituteDeviceIds.Contains(c.DeviceId) &&
+                               c.Previliges == "NormalUser")
+                    .ToList();
+
+                var totalStudents = instituteStudents.Count;
+                if (totalStudents == 0) continue;
+
+                var studentsPresent = instituteStudents.Count(s => presentCandidateIds.Contains(s.DeviceUserId));
+                var studentsAbsent = totalStudents - studentsPresent;
+                var attendancePct = (decimal)studentsPresent / totalStudents * 100;
+
+                studentReport.Add(new InstituteAttendanceRowDto
+                {
+                    InstituteName = institute.InstituteName,
+                    Region = institute.Region?.RegionName ?? "",
+                    Total = totalStudents,
+                    Present = studentsPresent,
+                    Absent = studentsAbsent,
+                    AttendancePercentage = Math.Round(attendancePct, 1),
+                    Status = GetAttendanceStatus(attendancePct)
+                });
+            }
+
+            // Calculate summary
+            var allFaculty = allCandidates.Where(c => c.Previliges == "Manager").ToList();
+            var allStudents = allCandidates.Where(c => c.Previliges == "NormalUser").ToList();
+
+            var totalFacultyCount = allFaculty.Count;
+            var totalStudentsCount = allStudents.Count;
+            var facultyPresentCount = allFaculty.Count(f => presentCandidateIds.Contains(f.DeviceUserId));
+            var studentsPresentCount = allStudents.Count(s => presentCandidateIds.Contains(s.DeviceUserId));
+
+            var summary = new AttendanceReportSummaryDto
+            {
+                TotalInstitutes = institutes.Count,
+                TotalFaculty = totalFacultyCount,
+                FacultyPresent = facultyPresentCount,
+                FacultyAttendancePercentage = totalFacultyCount > 0
+                    ? Math.Round((decimal)facultyPresentCount / totalFacultyCount * 100, 1)
+                    : 0,
+                TotalStudents = totalStudentsCount,
+                StudentsPresent = studentsPresentCount,
+                StudentAttendancePercentage = totalStudentsCount > 0
+                    ? Math.Round((decimal)studentsPresentCount / totalStudentsCount * 100, 1)
+                    : 0,
+                StartDate = reportStartLocal,
+                EndDate = reportEndLocal
+            };
+
+            return new AttendanceDetailedReportDto
+            {
+                Summary = summary,
+                FacultyReport = facultyReport.OrderByDescending(f => f.AttendancePercentage).ToList(),
+                StudentReport = studentReport.OrderByDescending(s => s.AttendancePercentage).ToList()
+            };
+        }
+
+        private string GetAttendanceStatus(decimal percentage)
+        {
+            if (percentage >= 80) return "Good";
+            if (percentage >= 60) return "Average";
+            return "Poor";
+        }
 
 
 

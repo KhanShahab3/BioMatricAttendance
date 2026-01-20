@@ -6,5 +6,9 @@ namespace BioMatricAttendance.Services
     {
         Task<SuperAdminDashboardDto> GetSuperAdminDashboardAsync(int regionId);
         //Task<List<InstituteDashboardRowDto>> InstituteTableAsync(int? regionId);
+        Task<AttendanceDetailedReportDto> GetAttendanceReportAsync(
+  int? regionId,
+  DateTime? startDate,
+  DateTime? endDate);
     }
 }
