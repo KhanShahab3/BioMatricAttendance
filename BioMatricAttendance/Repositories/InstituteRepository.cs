@@ -11,11 +11,10 @@ namespace BioMatricAttendance.Repositories
         {
             _appContext = appDbContext;
         }
-        public async Task<Institute> AddInstitute(Institute institute)
+        public async Task AddInstitute(Institute institute)
         {
             await _appContext.Institutes.AddAsync(institute);
-            await _appContext.SaveChangesAsync();
-            return institute;
+          
         }
         public async Task<Institute> GetInstituteById(int id)
         {

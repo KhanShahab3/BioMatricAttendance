@@ -1,4 +1,5 @@
-﻿using BioMatricAttendance.Models;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 
 namespace BioMatricAttendance.Services
@@ -18,9 +19,14 @@ namespace BioMatricAttendance.Services
         {
             return await _deviceRepository.GetDeviceById(id);
         }
-        public async Task<List<BiomatricDevice>> GetDevices()
+        public async Task<List<GetDeviceNameDto>> GetDevices()
         {
-            return await _deviceRepository.GetAllDevices();
+            var devices = await _deviceRepository.GetAllDevices();
+            return devices.Select(d => new GetDeviceNameDto
+            {
+                Id = d.Id,
+                DeviceId = d.DeviceId,
+            }).ToList();
         }
         public async Task<BiomatricDevice> UpdateDevice(BiomatricDevice device)
         {

@@ -1,4 +1,5 @@
-﻿using BioMatricAttendance.Models;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Models;
 using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Http;
@@ -63,7 +64,7 @@ namespace BioMatricAttendance.Controllers
             });
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateInstitute(Institute institute)
+        public async Task<IActionResult> CreateInstitute(CreateInstituteDto institute)
         {
             var createdInstitute = await _instituteService.CreateInstitute(institute);
             if (createdInstitute == null)
@@ -80,7 +81,8 @@ namespace BioMatricAttendance.Controllers
             {
                 Sucess = true,
                 Message = "Institute are created succesfully",
-                StatusCode = 201
+                StatusCode = 201,
+               Data = createdInstitute  
             });
         }
         [HttpPut("update")]

@@ -17,7 +17,7 @@ namespace BioMatricAttendance.Repositories
             await _appContext.SaveChangesAsync();
             return device;
         }
-        public async Task<BiomatricDevice> GetDeviceById(int id)
+        public async Task<BiomatricDevice> GetDeviceById(int  id)
         {
             var device = await _appContext.BiomatricDevices.FindAsync(id);
             return device;

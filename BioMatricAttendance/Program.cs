@@ -26,21 +26,47 @@ builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
 builder.Services.AddScoped<IInstituteService, InstituteService>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IRegionService, RegionService>();
+builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin", builder =>
+    {
+        builder
+        .WithOrigins(new string[]
+        {
+            "http://localhost:5173",
+            "https://wonderful-florentine-84e2e4.netlify.app/",
+
+
+
+
+        })
+        .WithMethods("POST", "PUT", "DELETE", "GET")
+        .AllowAnyHeader()
+        .AllowCredentials();
+    });
+});
 
 
 var app = builder.Build();
 
 
 
+
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowOrigin");
 
 app.UseAuthorization();
 
