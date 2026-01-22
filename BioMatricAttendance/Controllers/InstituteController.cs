@@ -86,7 +86,7 @@ namespace BioMatricAttendance.Controllers
             });
         }
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateInstitute(Institute institute)
+        public async Task<IActionResult> UpdateInstitute(UpdateInstituteDto institute)
         {
             var updatedInstitute = await _instituteService.UpdateInstitute(institute);
             if (updatedInstitute == null)

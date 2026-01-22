@@ -16,14 +16,23 @@ namespace BioMatricAttendance.Repositories
             await _appContext.Institutes.AddAsync(institute);
           
         }
-        public async Task<Institute> GetInstituteById(int id)
+        public async Task<Institute?> GetInstituteById(int id)
         {
-            var institute = await _appContext.Institutes.FindAsync(id);
+            var institute = await _appContext.Institutes
+                .Include(i => i.Region)
+                .Include(i => i.BiomatricDevices)
+                .Where(i => i.IsDeleted == false) 
+                .FirstOrDefaultAsync(i => i.Id == id);
+
             return institute;
         }
         public async Task<List<Institute>> GetAllInstitutes()
         {
-            var institutes = await _appContext.Institutes.ToListAsync();
+            var institutes = await _appContext.Institutes
+                .Include(i => i.Region)
+                .Include(i => i.BiomatricDevices)
+                .Where(i => i.IsDeleted == false)
+                .ToListAsync();
             return institutes;
         }
         public async Task<Institute> UpdateInstitute(Institute institute)
@@ -34,19 +43,31 @@ namespace BioMatricAttendance.Repositories
                 isInstitute.InstituteName = institute.InstituteName;
                 isInstitute.Address = institute.Address;
                 isInstitute.ContactNumber = institute.ContactNumber;
+                isInstitute.Email = institute.Email;
+                isInstitute.ContactPerson = institute.ContactPerson;
+                isInstitute.UpdatedAt = DateTime.UtcNow;
+                isInstitute.RegionId = institute.RegionId;
                 await _appContext.SaveChangesAsync();
             }
             return institute;
         }
         public async Task<bool> DeleteInstitute(int id)
         {
-            var isInstitute = await _appContext.Institutes.FindAsync(id);
-            if (isInstitute != null)
+            var institute = await _appContext.Institutes.FindAsync(id);
+
+            if (institute != null)
             {
-                _appContext.Remove(isInstitute);
+               
+                institute.IsDeleted = true;
+
+              
+                _appContext.Institutes.Update(institute);
+
+                
                 await _appContext.SaveChangesAsync();
                 return true;
             }
+
             return false;
         }
     }

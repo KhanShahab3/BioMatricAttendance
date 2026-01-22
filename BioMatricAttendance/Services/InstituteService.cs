@@ -54,18 +54,70 @@ namespace BioMatricAttendance.Services
             return institute.Id;
 
         }
-        public async Task<Institute> GetInstitute(int id)
+        public async Task<GetInstituteDto> GetInstitute(int id)
         {
-            return await _instituteRepository.GetInstituteById(id);
+            var OneInstiute= await _instituteRepository.GetInstituteById(id);
+            if (OneInstiute == null)
+            {
+                return null;
+            }
+            var instituteDto = new GetInstituteDto
+            {
+                InstituteName = OneInstiute.InstituteName,
+                Address = OneInstiute.Address,
+                ContactNumber = OneInstiute.ContactNumber,
+                Email = OneInstiute.Email,
+                ContactPerson = OneInstiute.ContactPerson,
+                CreatedAt = OneInstiute.CreatedAt,
+                Region = new GetRegionNameDto
+                {
+                    RegionName = OneInstiute.Region.RegionName
+                },
+                DeviceCount = OneInstiute.BiomatricDevices?.Count() ?? 0
+            };
+            return instituteDto;
+
         }
         
-        public async Task<List<Institute>> GetInstitutes()
+        public async Task<List<GetInstituteDto>> GetInstitutes()
+
+
         {
-            return await _instituteRepository.GetAllInstitutes();
+          
+            var institutes= await _instituteRepository.GetAllInstitutes();
+
+            var instituteDtos = institutes.Select(institute => new GetInstituteDto
+            {
+                InstituteName = institute.InstituteName,
+                Address = institute.Address,
+                ContactNumber = institute.ContactNumber,
+                Email = institute.Email,
+                ContactPerson = institute.ContactPerson,
+                CreatedAt = institute.CreatedAt,
+                Region = new GetRegionNameDto
+                {
+                    RegionName = institute.Region.RegionName
+                },
+                DeviceCount = institute.BiomatricDevices?.Count() ?? 0
+            }).ToList();
+            return instituteDtos;
+
         }
-        public async Task<Institute> UpdateInstitute(Institute institute)
+        public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute)
         {
-            return await _instituteRepository.UpdateInstitute(institute);
+            var UpdateInstitute=new Institute
+            {
+                Id = institute.Id,
+                InstituteName = institute.InstituteName,
+                Address = institute.Address,
+                ContactNumber = institute.ContactNumber,
+                Email = institute.Email,
+                ContactPerson = institute.ContactPerson,
+                RegionId = institute.RegionId,
+                UpdatedAt = institute.UpdatedAt
+            };
+            await _instituteRepository.UpdateInstitute(UpdateInstitute);
+            return institute;
         }
         public async Task<bool> RemoveInstitute(int id)
         {

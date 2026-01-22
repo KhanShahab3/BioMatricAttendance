@@ -6,9 +6,9 @@ namespace BioMatricAttendance.Services
     public interface IInstituteService
     {
          Task<int> CreateInstitute(CreateInstituteDto instituteDto);
-        Task<Institute> GetInstitute(int id);
-         Task<List<Institute>> GetInstitutes();
-        Task<Institute> UpdateInstitute(Institute institute);
+        Task<GetInstituteDto> GetInstitute(int id);
+         Task<List<GetInstituteDto>> GetInstitutes();
+        Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute);
          Task<bool> RemoveInstitute(int id);
     }
 }
