@@ -1,4 +1,5 @@
 ﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,16 @@ namespace BioMatricAttendance.Repositories
                 .Where(i => i.IsDeleted == false)
                 .ToListAsync();
             return institutes;
+        }
+
+        public async Task<List<Institute>> GetInstituteCourses()
+        {
+            var instituteCourses = await _appContext.Institutes
+                .Include(ic => ic.Region)
+                .Include(ic => ic.Courses)
+                .Where(ic => ic.IsDeleted == false)
+                .ToListAsync();
+            return instituteCourses;
         }
         public async Task<Institute> UpdateInstitute(Institute institute)
         {

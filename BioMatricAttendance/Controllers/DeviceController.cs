@@ -39,9 +39,9 @@ namespace BioMatricAttendance.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetDeviceById(int deviceId)
+        public async Task<IActionResult> GetDeviceById(int id)
         {
-            var device = await _deviceService.GetDevice(deviceId);
+            var device = await _deviceService.GetDevice(id);
             if (device == null)
             {
                 return NotFound(new APIResponse<object>

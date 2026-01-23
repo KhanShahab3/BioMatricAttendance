@@ -17,43 +17,51 @@ namespace BioMatricAttendance.Services
             _context = context;
             _deviceRepository = deviceRepository;
         }
-        public async Task<int> CreateInstitute(CreateInstituteDto instituteDto)
+        public async Task<int> CreateInstitute(CreateInstituteDto dto)
         {
+            
             var institute = new Institute
             {
-                InstituteName = instituteDto.InstituteName,
-                Address = instituteDto.Address,
-                ContactNumber = instituteDto.ContactNumber,
-                Email = instituteDto.Email,
-                ContactPerson = instituteDto.ContactPerson,
-                RegionId = instituteDto.RegionId,
-               
-                CreatedAt = instituteDto.CreatedAt
-            };  
-             await _instituteRepository.AddInstitute(institute);
-            await _context.SaveChangesAsync();
+                InstituteName = dto.InstituteName,
+                Address = dto.Address,
+                ContactNumber = dto.ContactNumber,
+                Email = dto.Email,
+                ContactPerson = dto.ContactPerson,
+                RegionId = dto.RegionId,
+                CreatedAt = dto.CreatedAt
+            };
 
-            foreach (var deviceId in instituteDto.DeviceIds)
+            _context.Institutes.Add(institute);
+            await _context.SaveChangesAsync(); 
+
+            int instituteId = institute.Id; 
+
+           
+            var devices = await _context.BiomatricDevices
+                .Where(d => dto.DeviceIds.Contains(d.Id))
+                .ToListAsync();
+
+            
+            if (devices.Count != dto.DeviceIds.Count)
+                throw new Exception("One or more devices not found");
+
+            if (devices.Any(d => d.InstituteId != null))
+                throw new Exception("Device already assigned to another institute");
+
+          
+            foreach (var device in devices)
             {
-                var device = await _deviceRepository.GetDeviceById(deviceId);
-                if (device != null)
-                {
-                    
-                    device.InstituteId = institute.Id;
-                    _deviceRepository.UpdateDevice(device);
-
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    throw new Exception("Device not found");
-                }
+                device.InstituteId = instituteId;
             }
 
+           
+            await _context.SaveChangesAsync();
 
-            return institute.Id;
-
+            return instituteId;
         }
+
+
+
         public async Task<GetInstituteDto> GetInstitute(int id)
         {
             var OneInstiute= await _instituteRepository.GetInstituteById(id);
@@ -62,7 +70,9 @@ namespace BioMatricAttendance.Services
                 return null;
             }
             var instituteDto = new GetInstituteDto
+
             {
+                Id = OneInstiute.Id,
                 InstituteName = OneInstiute.InstituteName,
                 Address = OneInstiute.Address,
                 ContactNumber = OneInstiute.ContactNumber,
@@ -84,10 +94,13 @@ namespace BioMatricAttendance.Services
 
         {
           
+            
+            
             var institutes= await _instituteRepository.GetAllInstitutes();
 
             var instituteDtos = institutes.Select(institute => new GetInstituteDto
             {
+                Id = institute.Id,
                 InstituteName = institute.InstituteName,
                 Address = institute.Address,
                 ContactNumber = institute.ContactNumber,
@@ -96,6 +109,7 @@ namespace BioMatricAttendance.Services
                 CreatedAt = institute.CreatedAt,
                 Region = new GetRegionNameDto
                 {
+                    Id=institute.Region.Id,
                     RegionName = institute.Region.RegionName
                 },
                 DeviceCount = institute.BiomatricDevices?.Count() ?? 0

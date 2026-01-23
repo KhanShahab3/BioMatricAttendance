@@ -10,5 +10,6 @@ namespace BioMatricAttendance.Services
          Task<List<GetInstituteDto>> GetInstitutes();
         Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute);
          Task<bool> RemoveInstitute(int id);
+        //Task<List<InstituteCoursesDto>> GetInstituteCourses();  
     }
 }
