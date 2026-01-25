@@ -28,6 +28,10 @@ builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IRegionService, RegionService>();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IInstituteAttendanceRepository,InstituteAttendanceRepository>();
+builder.Services.AddScoped<IInstituteDashboardService,InstituteDashboardService>();
 
 
 builder.Services.AddCors(options =>

@@ -19,45 +19,58 @@ namespace BioMatricAttendance.Services
         }
         public async Task<int> CreateInstitute(CreateInstituteDto dto)
         {
-            
-            var institute = new Institute
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                InstituteName = dto.InstituteName,
-                Address = dto.Address,
-                ContactNumber = dto.ContactNumber,
-                Email = dto.Email,
-                ContactPerson = dto.ContactPerson,
-                RegionId = dto.RegionId,
-                CreatedAt = dto.CreatedAt
-            };
 
-            _context.Institutes.Add(institute);
-            await _context.SaveChangesAsync(); 
+                
 
-            int instituteId = institute.Id; 
+                var institute = new Institute
+                {
+                    InstituteName = dto.InstituteName,
+                    Address = dto.Address,
+                    ContactNumber = dto.ContactNumber,
+                    Email = dto.Email,
+                    ContactPerson = dto.ContactPerson,
+                    RegionId = dto.RegionId,
+                    CreatedAt = dto.CreatedAt
+                };
 
-           
-            var devices = await _context.BiomatricDevices
-                .Where(d => dto.DeviceIds.Contains(d.Id))
-                .ToListAsync();
+                _instituteRepository.AddInstitute(institute);
+                await _context.SaveChangesAsync();
 
-            
-            if (devices.Count != dto.DeviceIds.Count)
-                throw new Exception("One or more devices not found");
+                int instituteId = institute.Id;
 
-            if (devices.Any(d => d.InstituteId != null))
-                throw new Exception("Device already assigned to another institute");
 
-          
-            foreach (var device in devices)
-            {
-                device.InstituteId = instituteId;
+                // can create function and pass institute Id and list of device ids and call repository here.
+                var devices = await _context.BiomatricDevices
+                    .Where(d => dto.DeviceIds.Contains(d.Id))
+                    .ToListAsync();
+                if (devices.Count != dto.DeviceIds.Count)
+                    throw new Exception("One or more devices not found");
+
+                if (devices.Any(d => d.InstituteId != null))
+                    throw new Exception("Device already assigned to another institute");
+
+
+                foreach (var device in devices)
+                {
+                    device.InstituteId = instituteId;
+                }
+
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return instituteId;
+
             }
-
-           
-            await _context.SaveChangesAsync();
-
-            return instituteId;
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
 
@@ -90,14 +103,8 @@ namespace BioMatricAttendance.Services
         }
         
         public async Task<List<GetInstituteDto>> GetInstitutes()
-
-
-        {
-          
-            
-            
+        { 
             var institutes= await _instituteRepository.GetAllInstitutes();
-
             var instituteDtos = institutes.Select(institute => new GetInstituteDto
             {
                 Id = institute.Id,
@@ -116,6 +123,22 @@ namespace BioMatricAttendance.Services
             }).ToList();
             return instituteDtos;
 
+        }
+
+        public async Task<List<InstituteCoursesDto>> GetInstituteCourses()
+        {
+            var institutes=await _instituteRepository.GetInstituteCourses();
+            var instDto = institutes.Select(ins => new InstituteCoursesDto
+            {
+                Id = ins.Id,
+                InstituteName = ins.InstituteName,
+                RegionName = new GetRegionNameDto
+                {
+                    RegionName = ins.Region.RegionName,
+                },
+                TotalCourses = ins.Courses?.Count() ?? 0
+            }).ToList();
+            return instDto;
         }
         public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute)
         {

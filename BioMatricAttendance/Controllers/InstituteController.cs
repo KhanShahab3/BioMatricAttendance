@@ -127,5 +127,22 @@ namespace BioMatricAttendance.Controllers
                 StatusCode = 200
             });
         }
+
+        [HttpGet("InstituteCourse")]
+
+        public async Task<IActionResult> GetInstitutesCourse()
+        {
+            var inst = await _instituteService.GetInstituteCourses();
+            if (inst == null)
+            {
+                BadRequest(new APIResponse<object>
+                {
+                    StatusCode = 400,
+                    Sucess = false,
+
+                });
+            }
+            return Ok(inst);
+        }
     }
 }

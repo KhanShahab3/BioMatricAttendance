@@ -13,13 +13,11 @@
         public bool IsDeleted { get; set; } = false;
         public int RegionId { get; set; }
         public Region Region { get; set; }
-
-        public List<BiomatricDevice> BiomatricDevices {  get; set; }
-
-
-     
-       
+        public List<BiomatricDevice> BiomatricDevices { get; set; }
         public ICollection<Attendance> Attendances { get; set; }
         public ICollection<Course> Courses { get; set; }
     }
 }
+
+//get institue and region name courese counts 
+//when click i want how many course in that institue having courase code course name and duration
