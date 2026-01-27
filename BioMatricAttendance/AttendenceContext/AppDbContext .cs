@@ -37,7 +37,10 @@ namespace BioMatricAttendance.AttendenceContext
     .HasDatabaseName("UX_TimeLogs_Device_User_CreatedAt");
             base.OnModelCreating(modelBuilder);
 
-            
+
+
+
+
         }
 
     }

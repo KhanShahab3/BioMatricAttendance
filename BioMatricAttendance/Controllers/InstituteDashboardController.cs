@@ -30,5 +30,17 @@ namespace BioMatricAttendance.Controllers
             return Ok(courses);
 
         }
+
+        [HttpGet("Institute/AttendanceReports")]
+
+        public async Task<IActionResult>GetInstituteAttendanceReports([FromQuery] int instituteId, [FromQuery] DateTime from, [FromQuery] DateTime to)
+
+        {
+           
+
+
+            var instituteAttendance=await _instituteDashboardService.GetAttendanceReportAsync(instituteId, from, to);
+            return Ok(instituteAttendance);
+        }
     }
 }

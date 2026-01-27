@@ -11,5 +11,7 @@ namespace BioMatricAttendance.Repositories
          Task<Institute> UpdateInstitute(Institute institute);
          Task<bool> DeleteInstitute(int id);
         Task<List<Institute>> GetInstituteCourses();
+
+        Task<string?> GetInstituteName(int instituteId);
     }
 }

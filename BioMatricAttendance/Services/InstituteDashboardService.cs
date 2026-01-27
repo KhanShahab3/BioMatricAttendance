@@ -8,46 +8,76 @@ namespace BioMatricAttendance.Services
     {
         private readonly IInstituteAttendanceRepository _instituteRepository;
         private readonly ICourseRepository _courseRepository;
-        public InstituteDashboardService(IInstituteAttendanceRepository instituteRepository, ICourseRepository courseRepository)
+        private readonly IInstituteRepository _insRepo;
+        public InstituteDashboardService(IInstituteAttendanceRepository instituteRepository, 
+            ICourseRepository courseRepository,
+            IInstituteRepository insRepo)
         {
             _instituteRepository = instituteRepository;
             _courseRepository = courseRepository;
+            _insRepo = insRepo;
         }
 
         public async Task<InstituteDashboardDto> GetInstituteDashboard(int instituteId)
         {
-            
-            var today = DateTime.UtcNow.AddHours(5).Date;
-            var fromUtc = today.AddHours(-5);
-            var toUtc = fromUtc.AddDays(1);
+            //var today = DateTime.UtcNow.AddHours(5).Date;
+            //var fromUtc = today.AddHours(-5);
+            //var toUtc = fromUtc.AddDays(1);
+
+
+
+            const int PakistanUtcOffset = 5;
+
+            // Pakistan today
+            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
+
+            // Convert to UTC range
+            var startUtc = todayPk.AddHours(-PakistanUtcOffset);
+            var endUtc = startUtc.AddDays(1);
+
+
+
+
 
         
+
+
+
+
+            var instituteName = await _insRepo.GetInstituteName(instituteId);
+
+          
             var devices = await _instituteRepository.GetDevicesByInstituteId(instituteId);
-
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
-            var totalDevices = deviceIds.Count;
 
-            if (totalDevices == 0)
+            if (!deviceIds.Any())
             {
                 return new InstituteDashboardDto
                 {
-                  InstituteName = string.Empty,
+                    InstituteName = instituteName ?? string.Empty
                 };
             }
 
-           
+        
             var candidates = await _instituteRepository.GetCandidatesByDeviceIds(deviceIds);
 
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
 
-          
-            var logs = await _instituteRepository.GetTimeLogs(deviceIds, fromUtc, toUtc);
+           
+            var logs = await _instituteRepository.GetTimeLogs(deviceIds, startUtc, endUtc);
 
             var presentUserIds = logs
                 .Select(l => (int)l.DeviceUserId)
                 .Distinct()
-                .ToList();
+                .ToHashSet(); 
+
+          
+            var facultyPresent = faculty.Count(f => presentUserIds.Contains(f.DeviceUserId));
+            var studentPresent = students.Count(s => presentUserIds.Contains(s.DeviceUserId));
+
+            var facultyAbsent = faculty.Count - facultyPresent;
+            var studentAbsent = students.Count - studentPresent;
 
            
             var activeDevices = logs
@@ -55,25 +85,27 @@ namespace BioMatricAttendance.Services
                 .Distinct()
                 .Count();
 
-           
+            
             var courseCount = await _instituteRepository.GetCourseCountByInstituteId(instituteId);
 
-          
             return new InstituteDashboardDto
             {
-                InstituteName = "Test Institute",
+                InstituteName = instituteName ?? string.Empty,
+
                 TotalFaculty = faculty.Count,
-                FacultyPresent = faculty.Count(f => presentUserIds.Contains(f.DeviceUserId)),
-
-
-                
+                FacultyPresent = facultyPresent,
+                FacultyAbsent = facultyAbsent,
 
                 TotalStudents = students.Count,
-                StudentsPresent = students.Count(s => presentUserIds.Contains(s.DeviceUserId)),
+                StudentsPresent = studentPresent,
+                StudentsAbsent = studentAbsent,
 
-                TotalCourses = courseCount
+                TotalCourses = courseCount,
+                //ActiveDevices = activeDevices,
+                //InactiveDevices = deviceIds.Count - activeDevices
             };
         }
+
 
 
         public async Task<List<CourseAttendanceDto>> GetCourseWiseAttendanceAsync(int instituteId)
@@ -94,16 +126,17 @@ namespace BioMatricAttendance.Services
 
           
             const int PakistanUtcOffset = 5;
+            var UtcActual = DateTime.UtcNow;
             var todayUtc = DateTime.UtcNow
                 .AddHours(PakistanUtcOffset)
                 .Date
                 .AddHours(-PakistanUtcOffset);
 
-            var tomorrowUtc = todayUtc.AddDays(1);
+            var tomorrowUtc = UtcActual.AddDays(1);
 
            
             var todayLogs = await _instituteRepository
-                .GetTimeLogs(deviceIds, todayUtc, tomorrowUtc);
+                .GetTimeLogs(deviceIds, UtcActual, tomorrowUtc);
 
             var presentStudentIds = todayLogs
                 .Select(t => (int)t.DeviceUserId)
@@ -147,8 +180,15 @@ namespace BioMatricAttendance.Services
             return result;
         }
 
-        public async Task<InstituteAttendanceReportDto> GetAttendanceReportAsync(int instituteId, DateTime from, DateTime to)
+        public async Task<InstituteAttendanceReportDto> GetAttendanceReportAsync(int instituteId, DateTime ?startDate, DateTime? endDate)
         {
+
+            const int PakistanUtcOffset = 5;
+            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
+            var startPk = (startDate ?? todayPk).Date;
+            var endPk = (endDate ?? todayPk).Date.AddDays(1);
+            var startUtc = startPk.AddHours(-PakistanUtcOffset);
+            var endUtc = endPk.AddHours(-PakistanUtcOffset);
             var devices = await _instituteRepository.GetDevicesByInstituteId(instituteId);
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
@@ -162,7 +202,7 @@ namespace BioMatricAttendance.Services
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
 
             var logs = await _instituteRepository
-                     .GetTimeLogs(deviceIds, from, to);
+                     .GetTimeLogs(deviceIds, startUtc, endUtc);
             var presentUserIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToHashSet();
 
             

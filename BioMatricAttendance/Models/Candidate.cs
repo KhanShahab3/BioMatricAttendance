@@ -6,7 +6,6 @@
         public string Name { get; set; }
         public long DeviceId { get; set; }
         public int DeviceUserId { get; set; }
-
         public int CourseId { get; set; }
         public string Previliges { get; set; }
         public DateTime CreatedAt { get; set; }

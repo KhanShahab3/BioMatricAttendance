@@ -116,12 +116,22 @@ namespace BioMatricAttendance.Repositories
         {
             const int PakistanUtcOffset = 5;
 
+
           
-            var nowUtc = DateTime.UtcNow;
-            var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
-            var todayPakistan = nowPakistan.Date;
-            var todayStartUtc = todayPakistan.AddHours(-PakistanUtcOffset);
-            var todayEndUtc = todayStartUtc.AddDays(1);
+
+          
+            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
+
+           
+            var startUtc = todayPk.AddHours(-PakistanUtcOffset);
+            var endUtc = startUtc.AddDays(1);
+
+
+            //var nowUtc = DateTime.UtcNow;
+            //var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
+            //var todayPakistan = nowPakistan.Date;
+            //var todayStartUtc = todayPakistan.AddHours(-PakistanUtcOffset);
+            //var todayEndUtc = todayStartUtc.AddDays(1);
 
             var institutesQuery = _context.Institutes
                 .Include(i => i.Region)
@@ -153,8 +163,8 @@ namespace BioMatricAttendance.Repositories
             // Query with UTC times
             var todayLogs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
-                            t.PunchTime >= todayStartUtc &&
-                            t.PunchTime < todayEndUtc &&
+                            t.PunchTime >= startUtc &&
+                            t.PunchTime < endUtc &&
                             t.DeviceUserId > 0)
                 .ToListAsync();
 
@@ -269,18 +279,20 @@ namespace BioMatricAttendance.Repositories
     DateTime? endDate)
         {
             const int PakistanUtcOffset = 5;
+            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
+            var startPk = (startDate ?? todayPk).Date;
+            var endPk = (endDate ?? todayPk).Date.AddDays(1);
+            var startUtc = startPk.AddHours(-PakistanUtcOffset);
+            var endUtc = endPk.AddHours(-PakistanUtcOffset);
+            //var nowUtc = DateTime.UtcNow;
+            //var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
+            //var todayPakistan = nowPakistan.Date;
+            //var reportStartLocal = startDate ?? todayPakistan;
+            //var reportEndLocal = endDate ?? todayPakistan;
+            //var reportStartUtc = reportStartLocal.AddHours(-PakistanUtcOffset);
+            //var reportEndUtc = reportEndLocal.AddDays(1).AddHours(-PakistanUtcOffset);
 
-            var nowUtc = DateTime.UtcNow;
-            var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
-            var todayPakistan = nowPakistan.Date;
-
-            var reportStartLocal = startDate ?? todayPakistan;
-            var reportEndLocal = endDate ?? todayPakistan;
-
-            var reportStartUtc = reportStartLocal.AddHours(-PakistanUtcOffset);
-            var reportEndUtc = reportEndLocal.AddDays(1).AddHours(-PakistanUtcOffset);
-
-            // Filter institutes
+           
             var institutesQuery = _context.Institutes
                 .Include(i => i.Region)
                 .Where(i => !i.IsDeleted);
@@ -293,7 +305,7 @@ namespace BioMatricAttendance.Repositories
             var institutes = await institutesQuery.ToListAsync();
             var instituteIds = institutes.Select(i => i.Id).ToList();
 
-            // Get devices
+            
             var devices = await _context.BiomatricDevices
                 .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted)
                 .ToListAsync();
@@ -308,8 +320,8 @@ namespace BioMatricAttendance.Repositories
             // Get logs for date range
             var logs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
-                            t.PunchTime >= reportStartUtc &&
-                            t.PunchTime < reportEndUtc &&
+                            t.PunchTime >= startUtc &&
+                            t.PunchTime < endUtc &&
                             t.DeviceUserId > 0)
                 .ToListAsync();
 
@@ -408,8 +420,8 @@ namespace BioMatricAttendance.Repositories
                 StudentAttendancePercentage = totalStudentsCount > 0
                     ? Math.Round((decimal)studentsPresentCount / totalStudentsCount * 100, 1)
                     : 0,
-                StartDate = reportStartLocal,
-                EndDate = reportEndLocal
+                StartDate = startPk,
+                EndDate = endPk
             };
 
             return new AttendanceDetailedReportDto

@@ -1,4 +1,5 @@
-﻿using BioMatricAttendance.Services;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
@@ -24,5 +25,43 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(courses);
         }
+
+        [HttpDelete("DeleteCourse/{courseId}")]
+        public async Task<IActionResult> DeleteCourse(int courseId)
+        {
+            var result = await _courseService.DeleteCourseAsync(courseId);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+        [HttpGet("GetAllCourse")]
+
+        public async Task<IActionResult> GetAllCourses()
+        {
+            var courses = await _courseService.GetAllCoursesAsync();
+            return Ok(courses);
+        }
+
+        [HttpPut("UpdateCourse")]
+        public async Task<IActionResult> UpdateCourse( [FromBody] CourseDto courseDto)
+        {
+            var updatedCourse = await _courseService.UpdateCourseAsync(courseDto);
+            if (updatedCourse == null)
+            {
+                return NotFound();
+            }
+            return Ok(updatedCourse);
+        }
+
+        [HttpPost("AddCourse")]
+        public async Task<IActionResult> AddCourse([FromBody] CourseDto courseDto)
+        {
+            var createdCourse = await _courseService.AddCourseAsync(courseDto);
+            return Ok(createdCourse);
+        }
+
+
     }
 }

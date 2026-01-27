@@ -81,5 +81,14 @@ namespace BioMatricAttendance.Repositories
 
             return false;
         }
+
+        public async Task<string?> GetInstituteName(int instituteId)
+        {
+            return await _appContext.Institutes
+                .Where(i => i.Id == instituteId && !i.IsDeleted)
+                .Select(i => i.InstituteName)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }
