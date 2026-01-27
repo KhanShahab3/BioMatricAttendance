@@ -1,4 +1,5 @@
 ﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Helper;
 using BioMatricAttendance.Repositories;
 
 namespace BioMatricAttendance.Services
@@ -26,20 +27,16 @@ namespace BioMatricAttendance.Services
 
 
 
-            const int PakistanUtcOffset = 5;
+         
 
             // Pakistan today
-            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
+      
 
-            // Convert to UTC range
-            var startUtc = todayPk.AddHours(-PakistanUtcOffset);
-            var endUtc = startUtc.AddDays(1);
 
+            var(startUtc, endUtc)=DateTimeHelper.GetUtcRangeForPakistanDate(null,null);
 
 
 
-
-        
 
 
 
@@ -68,11 +65,13 @@ namespace BioMatricAttendance.Services
             var logs = await _instituteRepository.GetTimeLogs(deviceIds, startUtc, endUtc);
 
             var presentUserIds = logs
-                .Select(l => (int)l.DeviceUserId)
-                .Distinct()
-                .ToHashSet(); 
+     .Where(l => l.AttendType == "DutyOn")
+     .Select(l => (int)l.DeviceUserId)
+     .Distinct()
+     .ToHashSet();
 
-          
+
+
             var facultyPresent = faculty.Count(f => presentUserIds.Contains(f.DeviceUserId));
             var studentPresent = students.Count(s => presentUserIds.Contains(s.DeviceUserId));
 
@@ -110,7 +109,9 @@ namespace BioMatricAttendance.Services
 
         public async Task<List<CourseAttendanceDto>> GetCourseWiseAttendanceAsync(int instituteId)
         {
-           
+
+            var(toayUtc, tomorrowUtc)=DateTimeHelper.GetUtcRangeForPakistanDate(null,null);
+
             var devices = await _instituteRepository.GetDevicesByInstituteId(instituteId);
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
@@ -124,21 +125,14 @@ namespace BioMatricAttendance.Services
                 .Where(c => c.Previliges == "NormalUser")
                 .ToList();
 
-          
-            const int PakistanUtcOffset = 5;
-            var UtcActual = DateTime.UtcNow;
-            var todayUtc = DateTime.UtcNow
-                .AddHours(PakistanUtcOffset)
-                .Date
-                .AddHours(-PakistanUtcOffset);
 
-            var tomorrowUtc = UtcActual.AddDays(1);
 
            
             var todayLogs = await _instituteRepository
-                .GetTimeLogs(deviceIds, UtcActual, tomorrowUtc);
+                .GetTimeLogs(deviceIds, toayUtc, tomorrowUtc);
 
             var presentStudentIds = todayLogs
+                .Where(a=> a.AttendType == "DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToHashSet();
@@ -183,12 +177,7 @@ namespace BioMatricAttendance.Services
         public async Task<InstituteAttendanceReportDto> GetAttendanceReportAsync(int instituteId, DateTime ?startDate, DateTime? endDate)
         {
 
-            const int PakistanUtcOffset = 5;
-            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
-            var startPk = (startDate ?? todayPk).Date;
-            var endPk = (endDate ?? todayPk).Date.AddDays(1);
-            var startUtc = startPk.AddHours(-PakistanUtcOffset);
-            var endUtc = endPk.AddHours(-PakistanUtcOffset);
+          var(startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);    
             var devices = await _instituteRepository.GetDevicesByInstituteId(instituteId);
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
@@ -203,7 +192,9 @@ namespace BioMatricAttendance.Services
 
             var logs = await _instituteRepository
                      .GetTimeLogs(deviceIds, startUtc, endUtc);
-            var presentUserIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToHashSet();
+            var presentUserIds = logs
+                .Where(l => l.AttendType == "DutyOn")
+                .Select(l => (int)l.DeviceUserId).Distinct().ToHashSet();
 
             
             var facultySummary = new FacultyAttendanceSummaryDto

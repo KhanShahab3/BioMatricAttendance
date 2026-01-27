@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Helper;
 using BioMatricAttendance.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -114,17 +115,7 @@ namespace BioMatricAttendance.Repositories
         //}
         public async Task<SuperAdminDashboardDto> GetSuperAdminDashboardAsync(int? regionId)
         {
-            const int PakistanUtcOffset = 5;
-
-
-          
-
-          
-            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
-
-           
-            var startUtc = todayPk.AddHours(-PakistanUtcOffset);
-            var endUtc = startUtc.AddDays(1);
+            var(startUtc, endUtc)=DateTimeHelper.GetUtcRangeForPakistanDate(null,null); 
 
 
             //var nowUtc = DateTime.UtcNow;
@@ -169,6 +160,7 @@ namespace BioMatricAttendance.Repositories
                 .ToListAsync();
 
             var presentCandidateIds = todayLogs
+                .Where(a=>a.AttendType=="DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToList();
@@ -278,21 +270,13 @@ namespace BioMatricAttendance.Repositories
     DateTime? startDate,
     DateTime? endDate)
         {
-            const int PakistanUtcOffset = 5;
-            var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset).Date;
-            var startPk = (startDate ?? todayPk).Date;
-            var endPk = (endDate ?? todayPk).Date.AddDays(1);
-            var startUtc = startPk.AddHours(-PakistanUtcOffset);
-            var endUtc = endPk.AddHours(-PakistanUtcOffset);
-            //var nowUtc = DateTime.UtcNow;
-            //var nowPakistan = nowUtc.AddHours(PakistanUtcOffset);
-            //var todayPakistan = nowPakistan.Date;
-            //var reportStartLocal = startDate ?? todayPakistan;
-            //var reportEndLocal = endDate ?? todayPakistan;
-            //var reportStartUtc = reportStartLocal.AddHours(-PakistanUtcOffset);
-            //var reportEndUtc = reportEndLocal.AddDays(1).AddHours(-PakistanUtcOffset);
+           var(startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);   
+         
 
-           
+            var startPk = startDate ?? DateTime.UtcNow.AddHours(5).Date;
+            var endPk = endDate ?? DateTime.UtcNow.AddHours(5).Date;
+
+
             var institutesQuery = _context.Institutes
                 .Include(i => i.Region)
                 .Where(i => !i.IsDeleted);
@@ -326,11 +310,12 @@ namespace BioMatricAttendance.Repositories
                 .ToListAsync();
 
             var presentCandidateIds = logs
+                .Where(a => a.AttendType == "DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToList();
 
-            // Build Faculty Report (institute-wise)
+           
             var facultyReport = new List<InstituteAttendanceRowDto>();
 
             foreach (var institute in institutes)
@@ -364,7 +349,7 @@ namespace BioMatricAttendance.Repositories
                 });
             }
 
-            // Build Student Report (institute-wise)
+           
             var studentReport = new List<InstituteAttendanceRowDto>();
 
             foreach (var institute in institutes)
@@ -398,7 +383,6 @@ namespace BioMatricAttendance.Repositories
                 });
             }
 
-            // Calculate summary
             var allFaculty = allCandidates.Where(c => c.Previliges == "Manager").ToList();
             var allStudents = allCandidates.Where(c => c.Previliges == "NormalUser").ToList();
 
