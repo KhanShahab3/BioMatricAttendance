@@ -65,7 +65,6 @@ namespace BioMatricAttendance.Services
             var logs = await _instituteRepository.GetTimeLogs(deviceIds, startUtc, endUtc);
 
             var presentUserIds = logs
-     .Where(l => l.AttendType == "DutyOn")
      .Select(l => (int)l.DeviceUserId)
      .Distinct()
      .ToHashSet();
@@ -80,6 +79,7 @@ namespace BioMatricAttendance.Services
 
            
             var activeDevices = logs
+                .Where(l=> l.AttendType == "DutyOn"||l.AttendType=="DutyOff")
                 .Select(l => l.DeviceId)
                 .Distinct()
                 .Count();

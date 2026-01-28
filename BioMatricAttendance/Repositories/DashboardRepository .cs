@@ -155,12 +155,12 @@ namespace BioMatricAttendance.Repositories
             var todayLogs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
                             t.PunchTime >= startUtc &&
-                            t.PunchTime < endUtc &&
-                            t.DeviceUserId > 0)
+                            t.PunchTime < endUtc)
+                           
                 .ToListAsync();
 
             var presentCandidateIds = todayLogs
-                .Where(a=>a.AttendType=="DutyOn")
+                //.Where(a=>a.AttendType=="DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToList();

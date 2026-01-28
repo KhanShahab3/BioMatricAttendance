@@ -33,13 +33,13 @@ namespace BioMatricAttendance.Controllers
 
         [HttpGet("Institute/AttendanceReports")]
 
-        public async Task<IActionResult>GetInstituteAttendanceReports([FromQuery] int instituteId, [FromQuery] DateTime from, [FromQuery] DateTime to)
+        public async Task<IActionResult>GetInstituteAttendanceReports([FromQuery] int instituteId, [FromQuery] DateTime ?startDate, [FromQuery] DateTime? endDate)
 
         {
            
 
 
-            var instituteAttendance=await _instituteDashboardService.GetAttendanceReportAsync(instituteId, from, to);
+            var instituteAttendance=await _instituteDashboardService.GetAttendanceReportAsync(instituteId, startDate, endDate);
             return Ok(instituteAttendance);
         }
     }
