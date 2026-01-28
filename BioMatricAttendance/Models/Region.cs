@@ -9,6 +9,9 @@
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; } = false;
 
-        public ICollection<Institute> Institutes { get; set; }
+
+        public List<District> Districts { get; set; }
+
+        //public ICollection<Institute> Institutes { get; set; }
     }
 }

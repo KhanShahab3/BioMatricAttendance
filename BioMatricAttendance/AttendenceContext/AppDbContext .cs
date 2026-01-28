@@ -19,6 +19,8 @@ namespace BioMatricAttendance.AttendenceContext
         public DbSet<Region>Regions { get; set; }
         public DbSet<TimeLogs> TimeLogs { get; set; }
 
+        public DbSet<District> Districts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BiomatricDevice>()

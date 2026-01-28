@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BioMatricAttendance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260126084843_RemainInstituteId")]
-    partial class RemainInstituteId
+    [Migration("20260128144616_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,6 +144,9 @@ namespace BioMatricAttendance.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("gender")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BiomatricDeviceId");
@@ -196,6 +199,28 @@ namespace BioMatricAttendance.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("BioMatricAttendance.Models.District", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DistrictName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RegionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegionId");
+
+                    b.ToTable("District");
+                });
+
             modelBuilder.Entity("BioMatricAttendance.Models.Institute", b =>
                 {
                     b.Property<int>("Id")
@@ -219,6 +244,9 @@ namespace BioMatricAttendance.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -237,6 +265,8 @@ namespace BioMatricAttendance.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DistrictId");
 
                     b.HasIndex("RegionId");
 
@@ -421,13 +451,30 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("Institute");
                 });
 
-            modelBuilder.Entity("BioMatricAttendance.Models.Institute", b =>
+            modelBuilder.Entity("BioMatricAttendance.Models.District", b =>
                 {
-                    b.HasOne("BioMatricAttendance.Models.Region", "Region")
-                        .WithMany("Institutes")
+                    b.HasOne("BioMatricAttendance.Models.Region", null)
+                        .WithMany("Districts")
                         .HasForeignKey("RegionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BioMatricAttendance.Models.Institute", b =>
+                {
+                    b.HasOne("BioMatricAttendance.Models.District", "District")
+                        .WithMany("Institutes")
+                        .HasForeignKey("DistrictId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BioMatricAttendance.Models.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("District");
 
                     b.Navigation("Region");
                 });
@@ -448,6 +495,11 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("Candidates");
                 });
 
+            modelBuilder.Entity("BioMatricAttendance.Models.District", b =>
+                {
+                    b.Navigation("Institutes");
+                });
+
             modelBuilder.Entity("BioMatricAttendance.Models.Institute", b =>
                 {
                     b.Navigation("Attendances");
@@ -459,7 +511,7 @@ namespace BioMatricAttendance.Migrations
 
             modelBuilder.Entity("BioMatricAttendance.Models.Region", b =>
                 {
-                    b.Navigation("Institutes");
+                    b.Navigation("Districts");
                 });
 
             modelBuilder.Entity("BioMatricAttendance.Models.Role", b =>

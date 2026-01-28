@@ -13,6 +13,8 @@
         public bool IsDeleted { get; set; } = false;
         public int RegionId { get; set; }
         public Region Region { get; set; }
+        public int DistrictId { get; set; }
+        public District District { get; set; }
         public List<BiomatricDevice> BiomatricDevices { get; set; }
         public ICollection<Attendance> Attendances { get; set; }
         public ICollection<Course> Courses { get; set; }

@@ -11,6 +11,8 @@ namespace BioMatricAttendance.Models
       public string SessionId {  get; set; }
         public bool IsDeleted { get; set; } = false;
         public int InstituteId { get; set; }
+
+        public bool isRegistered { get; set; } = false; 
         public Institute Institute { get; set; }
         public ICollection<Candidate> Candidates { get; set; }
     }

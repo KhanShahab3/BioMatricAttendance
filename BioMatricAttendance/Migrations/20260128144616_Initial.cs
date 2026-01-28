@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BioMatricAttendance.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDb : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,7 +48,7 @@ namespace BioMatricAttendance.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DeviceUserId = table.Column<long>(type: "bigint", nullable: false),
+                    DeviceUserId = table.Column<int>(type: "integer", nullable: false),
                     DeviceId = table.Column<long>(type: "bigint", nullable: false),
                     PunchTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AttendType = table.Column<string>(type: "text", nullable: false),
@@ -61,27 +61,19 @@ namespace BioMatricAttendance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Institutes",
+                name: "District",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    InstituteName = table.Column<string>(type: "text", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: false),
-                    ContactNumber = table.Column<string>(type: "text", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    ContactPerson = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DistrictName = table.Column<string>(type: "text", nullable: false),
                     RegionId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Institutes", x => x.Id);
+                    table.PrimaryKey("PK_District", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Institutes_Regions_RegionId",
+                        name: "FK_District_Regions_RegionId",
                         column: x => x.RegionId,
                         principalTable: "Regions",
                         principalColumn: "Id",
@@ -99,7 +91,8 @@ namespace BioMatricAttendance.Migrations
                     Password = table.Column<string>(type: "text", nullable: false),
                     Phone = table.Column<string>(type: "text", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false)
+                    RoleId = table.Column<int>(type: "integer", nullable: false),
+                    InstituteId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -108,6 +101,40 @@ namespace BioMatricAttendance.Migrations
                         name: "FK_AppUsers_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Institutes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    InstituteName = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    ContactNumber = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    ContactPerson = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    RegionId = table.Column<int>(type: "integer", nullable: false),
+                    DistrictId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Institutes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Institutes_District_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "District",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Institutes_Regions_RegionId",
+                        column: x => x.RegionId,
+                        principalTable: "Regions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -143,7 +170,7 @@ namespace BioMatricAttendance.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     CourseName = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
+                    CourseCode = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Duration = table.Column<string>(type: "text", nullable: false),
@@ -170,6 +197,8 @@ namespace BioMatricAttendance.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     DeviceId = table.Column<long>(type: "bigint", nullable: false),
                     DeviceUserId = table.Column<int>(type: "integer", nullable: false),
+                    gender = table.Column<int>(type: "integer", nullable: false),
+                    CourseId = table.Column<int>(type: "integer", nullable: false),
                     Previliges = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -272,6 +301,16 @@ namespace BioMatricAttendance.Migrations
                 column: "InstituteId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_District_RegionId",
+                table: "District",
+                column: "RegionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Institutes_DistrictId",
+                table: "Institutes",
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Institutes_RegionId",
                 table: "Institutes",
                 column: "RegionId");
@@ -315,6 +354,9 @@ namespace BioMatricAttendance.Migrations
 
             migrationBuilder.DropTable(
                 name: "Institutes");
+
+            migrationBuilder.DropTable(
+                name: "District");
 
             migrationBuilder.DropTable(
                 name: "Regions");
