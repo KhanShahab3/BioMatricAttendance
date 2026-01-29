@@ -69,8 +69,11 @@ namespace BioMatricAttendance.Services
                 TotalDevices = devices.Count,
                 ActiveDevices = logs.Select(l => l.DeviceId).Distinct().Count(),
 
-                MaleCount = candidates.Count(c => c.gender == Gender.Male),
-                FemaleCount = candidates.Count(c => c.gender == Gender.Female),
+                StaffMaleCount = candidates.Count(c => c.gender == Gender.Male && c.Previliges=="Manager"),
+                StaffFemaleCount = candidates.Count(c => c.gender == Gender.Female && c.Previliges == "Manager"),
+
+                StudentMaleCount = candidates.Count(c => c.gender == Gender.Male && c.Previliges == "NormalUser"),
+                StudentFemaleCount = candidates.Count(c => c.gender == Gender.Female && c.Previliges == "NormalUser"),
 
                 TotalCourses = await _regionRepo.GetCourseCountAsync(instituteIds)
             };
