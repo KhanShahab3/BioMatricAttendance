@@ -20,6 +20,7 @@ namespace BioMatricAttendance.AttendenceContext
         public DbSet<TimeLogs> TimeLogs { get; set; }
 
         public DbSet<District> Districts { get; set; }
+        public DbSet<CandidateCourses> CandidateCourses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

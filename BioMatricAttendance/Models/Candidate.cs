@@ -7,7 +7,6 @@
         public long DeviceId { get; set; }
         public int DeviceUserId { get; set; }
         public Gender? gender { get; set; }
-        public int? CourseId { get; set; }
         public string Previliges { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

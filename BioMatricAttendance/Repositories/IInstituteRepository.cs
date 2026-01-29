@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Response;
 
 namespace BioMatricAttendance.Repositories
 {
@@ -13,5 +14,9 @@ namespace BioMatricAttendance.Repositories
         Task<List<Institute>> GetInstituteCourses();
 
         Task<string?> GetInstituteName(int instituteId);
+        Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId);
+        Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId);
+        Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId);
+
     }
 }

@@ -2,6 +2,7 @@
 using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
+using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Services
@@ -159,6 +160,19 @@ namespace BioMatricAttendance.Services
         public async Task<bool> RemoveInstitute(int id)
         {
             return await _instituteRepository.DeleteInstitute(id);
+        }
+
+       public async Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId)
+        {
+            return await _instituteRepository.GetInstituteWiseDevice(InstituteId);
+        }
+       public async Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId)
+        {
+            return await _instituteRepository.GetInstituteWiseCandidate(InstituteId);
+        }
+       public async Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId)
+        {
+            return await _instituteRepository.GetInstituteWiseFaculty(InstituteId);
         }
     }
 }

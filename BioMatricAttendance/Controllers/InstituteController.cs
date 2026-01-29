@@ -144,5 +144,50 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(inst);
         }
+        [HttpGet("GetInstituteFaculty")]
+        public async Task<IActionResult> GetInstituteFaculty(int InstituteId)
+        {
+            var inst = await _instituteService.GetInstituteWiseFaculty(InstituteId);
+            if (inst == null)
+            {
+                BadRequest(new APIResponse<object>
+                {
+                    StatusCode = 400,
+                    Sucess = false,
+
+                });
+            }
+            return Ok(inst);
+        }
+        [HttpGet("GetInstituteDevices")]
+        public async Task<IActionResult> GetInstituteDevices(int InstituteId)
+        {
+            var inst = await _instituteService.GetInstituteWiseDevice(InstituteId);
+            if (inst == null)
+            {
+                BadRequest(new APIResponse<object>
+                {
+                    StatusCode = 400,
+                    Sucess = false,
+
+                });
+            }
+            return Ok(inst);
+        }
+        [HttpGet("GetInstituteCandidates")]
+        public async Task<IActionResult> GetInstituteCandidates(int InstituteId)
+        {
+            var inst = await _instituteService.GetInstituteWiseCandidate(InstituteId);
+            if (inst == null)
+            {
+                BadRequest(new APIResponse<object>
+                {
+                    StatusCode = 400,
+                    Sucess = false,
+
+                });
+            }
+            return Ok(inst);
+        }
     }
 }

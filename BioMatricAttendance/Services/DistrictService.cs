@@ -10,9 +10,9 @@ namespace BioMatricAttendance.Services
         {
             _districtRepository = districtRepository;
         }
-        public async Task<List<DistrictDto>> GetDistrict()
+        public async Task<List<DistrictDto>> GetDistrict(int regionId)
         {
-            var districts= await _districtRepository.GetAllDistricts();
+            var districts= await _districtRepository.GetAllDistricts(regionId);
             var districtDtos=districts.Select(d=>new DistrictDto
             {
                 Id=d.Id,

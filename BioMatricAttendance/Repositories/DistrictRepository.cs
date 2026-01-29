@@ -11,9 +11,10 @@ namespace BioMatricAttendance.Repositories
         {
             _appContext = appDbContext;
         }   
-        public async Task<List<District>> GetAllDistricts()
+        public async Task<List<District>> GetAllDistricts(int regionId)
         {
             return await _appContext.Districts
+                .Where(x=>x.RegionId == regionId)
                 .ToListAsync();
         }
     }

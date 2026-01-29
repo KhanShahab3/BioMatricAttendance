@@ -36,6 +36,8 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IInstituteAttendanceRepository,InstituteAttendanceRepository>();
 builder.Services.AddScoped<IInstituteDashboardService,InstituteDashboardService>();
 builder.Services.AddScoped<IRegionDashboardRepository,RegionDashboardRepository>();
+builder.Services.AddScoped<ICourseCandidatesRepository, CourseCandidateRepository>();
+builder.Services.AddScoped<ICourseCandidateService,CouserCandidateService>();
 builder.Services.AddScoped<IRegionDashboardService,RegionDashboardService>();
 builder.Services.AddScoped<IDistrictRepository,DistrictRepository>();
 builder.Services.AddScoped<IDistrictService,DistrictService>();

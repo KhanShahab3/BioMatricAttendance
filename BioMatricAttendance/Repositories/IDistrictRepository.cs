@@ -4,7 +4,7 @@ namespace BioMatricAttendance.Repositories
 {
     public interface IDistrictRepository
     {
-        Task<List<District>> GetAllDistricts();
+        Task<List<District>> GetAllDistricts(int regionId);
     }
 
 }

@@ -15,9 +15,9 @@ namespace BioMatricAttendance.Controllers
             _districtService = districtService;
         }
         [HttpGet("GetDistricts")]
-        public async Task<IActionResult> GetDistricts()
+        public async Task<IActionResult> GetDistricts(int regionId)
         {
-            var districts = await _districtService.GetDistrict();
+            var districts = await _districtService.GetDistrict(regionId);
             return Ok(districts);
         }
     }

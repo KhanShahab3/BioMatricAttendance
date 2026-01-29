@@ -10,13 +10,16 @@ namespace BioMatricAttendance.Services
         private readonly IInstituteAttendanceRepository _instituteRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IInstituteRepository _insRepo;
+        private readonly ICourseCandidatesRepository _courseCandidatesRepository;
         public InstituteDashboardService(IInstituteAttendanceRepository instituteRepository, 
             ICourseRepository courseRepository,
-            IInstituteRepository insRepo)
+            IInstituteRepository insRepo,
+            ICourseCandidatesRepository courseCandidatesRepository)
         {
             _instituteRepository = instituteRepository;
             _courseRepository = courseRepository;
             _insRepo = insRepo;
+            _courseCandidatesRepository = courseCandidatesRepository;
         }
 
         public async Task<InstituteDashboardDto> GetInstituteDashboard(int instituteId)
@@ -79,7 +82,6 @@ namespace BioMatricAttendance.Services
 
            
             var activeDevices = logs
-                .Where(l=> l.AttendType == "DutyOn"||l.AttendType=="DutyOff")
                 .Select(l => l.DeviceId)
                 .Distinct()
                 .Count();
@@ -121,6 +123,8 @@ namespace BioMatricAttendance.Services
 
            
             var candidates = await _instituteRepository.GetCandidatesByDeviceIds(deviceIds);
+
+            
             var students = candidates
                 .Where(c => c.Previliges == "NormalUser")
                 .ToList();
@@ -132,7 +136,6 @@ namespace BioMatricAttendance.Services
                 .GetTimeLogs(deviceIds, toayUtc, tomorrowUtc);
 
             var presentStudentIds = todayLogs
-                .Where(a=> a.AttendType == "DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToHashSet();
@@ -140,13 +143,21 @@ namespace BioMatricAttendance.Services
            
             var courses = await _courseRepository.GetCourseByInstituteId(instituteId);
 
+
           
             var result = new List<CourseAttendanceDto>();
 
             foreach (var course in courses)
             {
+                var coursestudentinfo = await _courseCandidatesRepository.GetCandidateByCourseId(course.Id);
+
+                var studentIds = coursestudentinfo
+     .Select(l => (int)l.CandidateId)
+     .Distinct()
+     .ToHashSet();
+
                 var courseStudents = students
-                    .Where(s => s.CourseId == course.Id)
+                    .Where(s => studentIds.Contains(s.Id) )
                     .ToList();
 
                 var total = courseStudents.Count;
@@ -193,7 +204,6 @@ namespace BioMatricAttendance.Services
             var logs = await _instituteRepository
                      .GetTimeLogs(deviceIds, startUtc, endUtc);
             var presentUserIds = logs
-                .Where(l => l.AttendType == "DutyOn")
                 .Select(l => (int)l.DeviceUserId).Distinct().ToHashSet();
 
             
@@ -224,7 +234,16 @@ namespace BioMatricAttendance.Services
             var courseWiseAttendance = new List<CourseAttendanceDto>();
             foreach (var course in courses)
             {
-                var courseStudents = students.Where(s => s.CourseId == course.Id).ToList();
+                var coursestudentinfo = await _courseCandidatesRepository.GetCandidateByCourseId(course.Id);
+
+                var studentIds = coursestudentinfo
+     .Select(l => (int)l.CandidateId)
+     .Distinct()
+     .ToHashSet();
+
+                var courseStudents = students
+                    .Where(s => studentIds.Contains(s.Id))
+                    .ToList();
                 var total = courseStudents.Count;
                 var present = courseStudents.Count(s => presentUserIds.Contains(s.DeviceUserId));
                 var absent = total - present;

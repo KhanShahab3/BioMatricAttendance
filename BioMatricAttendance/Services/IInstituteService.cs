@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Response;
 
 namespace BioMatricAttendance.Services
 {
@@ -11,5 +12,9 @@ namespace BioMatricAttendance.Services
         Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute);
          Task<bool> RemoveInstitute(int id);
         Task<List<InstituteCoursesDto>> GetInstituteCourses();
+        Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId);
+        Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId);
+        Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId);
+
     }
 }

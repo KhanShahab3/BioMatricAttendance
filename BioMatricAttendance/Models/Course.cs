@@ -12,7 +12,8 @@
         public int InstituteId { get; set; }
 
         public Institute Institute { get; set; }
+        public List<CandidateCourses> CandidateCourses { get; set; }
 
     }
-    
+
 }

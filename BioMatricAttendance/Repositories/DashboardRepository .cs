@@ -160,7 +160,6 @@ namespace BioMatricAttendance.Repositories
                 .ToListAsync();
 
             var presentCandidateIds = todayLogs
-                //.Where(a=>a.AttendType=="DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToList();
@@ -310,7 +309,6 @@ namespace BioMatricAttendance.Repositories
                 .ToListAsync();
 
             var presentCandidateIds = logs
-                .Where(a => a.AttendType == "DutyOn")
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
                 .ToList();

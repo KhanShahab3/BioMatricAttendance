@@ -1,6 +1,7 @@
 ﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Repositories
@@ -88,6 +89,43 @@ namespace BioMatricAttendance.Repositories
                 .Where(i => i.Id == instituteId && !i.IsDeleted)
                 .Select(i => i.InstituteName)
                 .FirstOrDefaultAsync();
+        }
+         public async Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId)
+        {
+           return await _appContext.BiomatricDevices.Where(x=>x.InstituteId==InstituteId&& x.isRegistered).ToListAsync();
+        }
+        public async Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId) {
+        
+          
+         var devcies= await _appContext.BiomatricDevices.Where(x => x.InstituteId == InstituteId && x.isRegistered).ToListAsync();
+            var devicesIds = devcies.Select(i => i.DeviceId).ToList();
+
+            var candidates = await _appContext.Candidates
+     .Where(s => devicesIds.Contains(s.DeviceId) && s.Previliges == "NormalUser")
+     .Select(s => new InstituteCandidateResponse
+     {
+         Id = s.Id,
+         Name = s.Name,
+         gender = s.gender.Value
+     })
+     .ToListAsync();
+            return candidates;
+        }
+      public async  Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId)
+        {
+            var devcies = await _appContext.BiomatricDevices.Where(x => x.InstituteId == InstituteId && x.isRegistered).ToListAsync();
+            var devicesIds = devcies.Select(i => i.DeviceId).ToList();
+
+            var facilities = await _appContext.Candidates
+     .Where(s => devicesIds.Contains(s.DeviceId) && s.Previliges=="Manager")
+     .Select(s => new InstituteFacultyResponse
+     {
+         Id = s.Id,
+         Name = s.Name,
+         gender = s.gender.Value
+     })
+     .ToListAsync();
+            return facilities;
         }
 
     }
