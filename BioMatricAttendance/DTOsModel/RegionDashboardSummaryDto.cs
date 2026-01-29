@@ -19,9 +19,10 @@
         public int ActiveDevices { get; set; }
         public int InactiveDevices { get; set; }
 
-        public int MaleCount { get; set; }
-        public int FemaleCount { get; set; }
-
+        public int StaffMaleCount { get; set; }
+        public int StaffFemaleCount { get; set; }
+        public int StudentMaleCount { get; set; }
+        public int StudentFemaleCount { get; set; }
         public int TotalCourses { get; set; }
 
 
