@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Helper;
+using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 
 namespace BioMatricAttendance.Services
@@ -63,8 +64,10 @@ namespace BioMatricAttendance.Services
 
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
-
-           
+            var faculityMaleCount = faculty.Where(f => f.gender == Gender.Male).Count();
+            var faculityFemaleCount = faculty.Where(f => f.gender == Gender.Female).Count();
+            var StudentMaleCount = students.Where(f => f.gender == Gender.Male).Count();
+            var StudentFemaleCount = students.Where(f => f.gender == Gender.Female).Count();
             var logs = await _instituteRepository.GetTimeLogs(deviceIds, startUtc, endUtc);
 
             var presentUserIds = logs
@@ -96,7 +99,10 @@ namespace BioMatricAttendance.Services
                 TotalFaculty = faculty.Count,
                 FacultyPresent = facultyPresent,
                 FacultyAbsent = facultyAbsent,
-
+                FacultyFemale=faculityFemaleCount,
+                FacultyMale=faculityMaleCount,
+                StudentFemale=StudentFemaleCount,
+                StudentMale=StudentMaleCount,
                 TotalStudents = students.Count,
                 StudentsPresent = studentPresent,
                 StudentsAbsent = studentAbsent,

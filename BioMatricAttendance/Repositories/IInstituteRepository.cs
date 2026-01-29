@@ -17,6 +17,7 @@ namespace BioMatricAttendance.Repositories
         Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId);
         Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId);
         Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId);
-
+        Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate);
+        Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate);
     }
 }

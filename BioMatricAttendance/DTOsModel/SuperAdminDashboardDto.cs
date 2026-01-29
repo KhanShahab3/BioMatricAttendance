@@ -7,6 +7,10 @@
         public int TotalFaculty { get; set; }
         public int TotalFacultyPresent { get; set; }
         public int TotalStudents { get; set; }
+        public int MaleStudentCount { get; set; }
+        public int FemaleStudentCount { get; set; }
+        public int MaleFaculityCount { get; set; }
+        public int FemaleFaculityCount { get; set; }
         public int TotalStudentsPresent { get; set; }
         public int TotalDevices { get; set; }
         public int TotalDevicesActive { get; set; }

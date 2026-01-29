@@ -128,5 +128,74 @@ namespace BioMatricAttendance.Repositories
             return facilities;
         }
 
+        public async Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
+        {
+            var devicIds=await _appContext.BiomatricDevices.Where(x=>x.InstituteId== InstituteId).Select(x => x.DeviceId).ToListAsync();
+           
+            
+            var result = await (
+               from t in _appContext.TimeLogs
+               join c in _appContext.Candidates
+                   on t.DeviceUserId equals c.DeviceUserId
+               where devicIds.Contains(t.DeviceId)
+                     && c.Previliges == "NormalUser"
+                     && t.PunchTime >= DateTime.SpecifyKind(StartDate, DateTimeKind.Utc)
+                     && t.PunchTime < DateTime.SpecifyKind(EndDate, DateTimeKind.Utc)
+            group t by new
+               {
+                   t.DeviceUserId,
+                   t.DeviceId,
+                   c.Name,
+                   PunchDate = t.PunchTime.Date   // 👈 KEY CHANGE
+               }
+               into g
+               select new InstitutePresentStudentResponse
+               {
+                   DeviceUserId = g.Key.DeviceUserId,
+                   DeviceId = g.Key.DeviceId,
+                   StudentName = g.Key.Name,
+                   PunchDate = g.Key.PunchDate.Date,   // add this property
+                   FirstPunch = g.Min(x => x.PunchTime).ToString("HH:mm:ss"),
+                   LastPunch = g.Max(x => x.PunchTime).ToString("HH:mm:ss")
+               }
+           ).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId,DateTime StartDate,DateTime EndDate)
+        {
+            var devicIds = await _appContext.BiomatricDevices.Where(x => x.InstituteId == InstituteId).Select(x => x.DeviceId).ToListAsync();
+
+            
+
+            var result = await (
+                from t in _appContext.TimeLogs
+                join c in _appContext.Candidates
+                    on t.DeviceUserId equals c.DeviceUserId
+                where devicIds.Contains(t.DeviceId)
+                      && c.Previliges == "Manager"
+                     && t.PunchTime >= DateTime.SpecifyKind(StartDate, DateTimeKind.Utc)
+                     && t.PunchTime < DateTime.SpecifyKind(EndDate, DateTimeKind.Utc)
+                group t by new
+                {
+                    t.DeviceUserId,
+                    t.DeviceId,
+                    c.Name,
+                    PunchDate = t.PunchTime.Date   // 👈 KEY CHANGE
+                }
+                into g
+                select new InstitutePresentFaculityResponse
+                {
+                    DeviceUserId = g.Key.DeviceUserId,
+                    DeviceId = g.Key.DeviceId,
+                    FaculityName = g.Key.Name,
+                    PunchDate = g.Key.PunchDate.Date,   // add this property
+                    FirstPunch = g.Min(x => x.PunchTime).ToString("HH:mm:ss"),
+                    LastPunch = g.Max(x => x.PunchTime).ToString("HH:mm:ss")
+                }
+            ).ToListAsync();
+
+            return result;
+        }
     }
 }

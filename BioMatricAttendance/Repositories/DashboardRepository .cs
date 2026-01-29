@@ -147,6 +147,10 @@ namespace BioMatricAttendance.Repositories
             var allCandidates = await _context.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable)
                 .ToListAsync();
+            var FaculityMale =  allCandidates.Where(c =>c.gender==Gender.Male && c.Previliges=="Manager").Count();
+            var FaculityFemale = allCandidates.Where(c => c.gender == Gender.Female && c.Previliges == "Manager").Count();
+            var StudentMale = allCandidates.Where(c => c.gender == Gender.Male && c.Previliges == "NormalUser").Count();
+            var Studentfemale = allCandidates.Where(c => c.gender == Gender.Female && c.Previliges == "NormalUser").Count();
 
             var faculty = allCandidates.Where(c => c.Previliges == "Manager").ToList();
             var students = allCandidates.Where(c => c.Previliges == "NormalUser").ToList();
@@ -154,11 +158,8 @@ namespace BioMatricAttendance.Repositories
             // Query with UTC times
             var todayLogs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
-                            t.PunchTime >= startUtc &&
-                            t.PunchTime < endUtc)
-                           
-                .ToListAsync();
-
+                            t.PunchTime.Date >= startUtc.Date &&
+                            t.PunchTime.Date <= endUtc.Date).ToListAsync();
             var presentCandidateIds = todayLogs
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
@@ -210,6 +211,10 @@ namespace BioMatricAttendance.Repositories
             {
                 TotalInstitutes = institutes.Count,
                 TotalFaculty = totalFaculty,
+                MaleFaculityCount=FaculityMale,
+                FemaleFaculityCount=FaculityFemale,
+                MaleStudentCount=StudentMale,
+                FemaleStudentCount=Studentfemale,
                 TotalFacultyPresent = facultyPresent,
                 TotalStudents = totalStudents,
                 TotalStudentsPresent = studentsPresent,
