@@ -5,6 +5,10 @@
 
         public string InstituteName { get; set; }   
         public int FacultyPresent { get; set; }
+        public int FacultyMale { get; set; }
+        public int FacultyFemale { get; set; }
+        public int StudentMale { get; set; }
+        public int StudentFemale { get; set; }
         public int TotalFaculty { get; set; }
         public int FacultyAbsent { get; set; }
 

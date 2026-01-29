@@ -174,5 +174,13 @@ namespace BioMatricAttendance.Services
         {
             return await _instituteRepository.GetInstituteWiseFaculty(InstituteId);
         }
+       public async Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
+        {
+            return await _instituteRepository.GetPresentStudentByInstitute(InstituteId,StartDate,EndDate);
+        }
+        public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
+        {
+            return await _instituteRepository.GetPresentFaculityByInstitute(InstituteId, StartDate, EndDate );
+        }
     }
 }
