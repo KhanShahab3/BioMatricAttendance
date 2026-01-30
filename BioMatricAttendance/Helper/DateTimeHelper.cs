@@ -9,7 +9,7 @@
             var todayPk = DateTime.UtcNow.AddHours(PakistanUtcOffset);
 
             var startPk = (startDatePk ?? todayPk);
-            var endPk = (endDatePk ?? todayPk).Date.AddDays(1); 
+            var endPk = (endDatePk ?? todayPk.Date.AddDays(1)).Date; 
 
             var startUtc = DateTime.SpecifyKind(startPk.Date, DateTimeKind.Utc);
             var endUtc = DateTime.SpecifyKind(endPk.Date, DateTimeKind.Utc);

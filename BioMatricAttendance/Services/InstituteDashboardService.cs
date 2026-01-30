@@ -218,7 +218,6 @@ namespace BioMatricAttendance.Services
 
             var studentPresent = students.Count(s => presentUserIds.Contains(s.DeviceUserId));
             var studentTotal = students.Count;
-
             var studentSummary = new StudentAttendanceSummaryDto
             {
                 TotalStudents = studentTotal,
@@ -237,9 +236,9 @@ namespace BioMatricAttendance.Services
                 var coursestudentinfo = await _courseCandidatesRepository.GetCandidateByCourseId(course.Id);
 
                 var studentIds = coursestudentinfo
-     .Select(l => (int)l.CandidateId)
-     .Distinct()
-     .ToHashSet();
+              .Select(l => (int)l.CandidateId)
+              .Distinct()
+              .ToHashSet();
 
                 var courseStudents = students
                     .Where(s => studentIds.Contains(s.Id))

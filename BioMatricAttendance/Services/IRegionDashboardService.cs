@@ -7,6 +7,13 @@ namespace BioMatricAttendance.Services
         Task<RegionDashboardDto> GetRegionDashboardAsync(
        int regionId,
        int? districtId);
-      
+
+        Task<RegionalDashboardReportDto> GetRegionalDashboardAsync(
+        int regionId,
+        int? districtId,
+        DateTime? startDate,
+        DateTime? endDate);
+
+
     }
 }
