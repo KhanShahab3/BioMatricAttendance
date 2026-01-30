@@ -159,7 +159,7 @@ namespace BioMatricAttendance.Repositories
             var todayLogs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
                             t.PunchTime.Date >= startUtc.Date &&
-                            t.PunchTime.Date <= endUtc.Date).ToListAsync();
+                            t.PunchTime.Date < endUtc.Date).ToListAsync();
             var presentCandidateIds = todayLogs
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
