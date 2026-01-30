@@ -300,12 +300,11 @@ namespace BioMatricAttendance.Repositories
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
 
-            // Get all candidates
             var allCandidates = await _context.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable)
                 .ToListAsync();
 
-            // Get logs for date range
+      
             var logs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
                             t.PunchTime >= startUtc &&
@@ -318,7 +317,7 @@ namespace BioMatricAttendance.Repositories
                 .Distinct()
                 .ToList();
 
-           
+
             var facultyReport = new List<InstituteAttendanceRowDto>();
 
             foreach (var institute in institutes)
@@ -334,11 +333,9 @@ namespace BioMatricAttendance.Repositories
                     .ToList();
 
                 var totalFaculty = instituteFaculty.Count;
-                if (totalFaculty == 0) continue;
-
                 var facultyPresent = instituteFaculty.Count(f => presentCandidateIds.Contains(f.DeviceUserId));
                 var facultyAbsent = totalFaculty - facultyPresent;
-                var attendancePct = (decimal)facultyPresent / totalFaculty * 100;
+                var attendancePct = totalFaculty > 0 ? (decimal)facultyPresent / totalFaculty * 100 : 0;
 
                 facultyReport.Add(new InstituteAttendanceRowDto
                 {
@@ -352,7 +349,6 @@ namespace BioMatricAttendance.Repositories
                 });
             }
 
-           
             var studentReport = new List<InstituteAttendanceRowDto>();
 
             foreach (var institute in institutes)
@@ -368,11 +364,9 @@ namespace BioMatricAttendance.Repositories
                     .ToList();
 
                 var totalStudents = instituteStudents.Count;
-                if (totalStudents == 0) continue;
-
                 var studentsPresent = instituteStudents.Count(s => presentCandidateIds.Contains(s.DeviceUserId));
                 var studentsAbsent = totalStudents - studentsPresent;
-                var attendancePct = (decimal)studentsPresent / totalStudents * 100;
+                var attendancePct = totalStudents > 0 ? (decimal)studentsPresent / totalStudents * 100 : 0;
 
                 studentReport.Add(new InstituteAttendanceRowDto
                 {
@@ -385,6 +379,7 @@ namespace BioMatricAttendance.Repositories
                     Status = GetAttendanceStatus(attendancePct)
                 });
             }
+
 
             var allFaculty = allCandidates.Where(c => c.Previliges == "Manager").ToList();
             var allStudents = allCandidates.Where(c => c.Previliges == "NormalUser").ToList();
