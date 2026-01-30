@@ -131,8 +131,8 @@ namespace BioMatricAttendance.Repositories
         public async Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
         {
             var devicIds=await _appContext.BiomatricDevices.Where(x=>x.InstituteId== InstituteId).Select(x => x.DeviceId).ToListAsync();
-
-            var pakistanTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Karachi");
+           
+            
             var result = await (
                from t in _appContext.TimeLogs
                join c in _appContext.Candidates
@@ -141,7 +141,7 @@ namespace BioMatricAttendance.Repositories
                      && c.Previliges == "NormalUser"
                      && t.PunchTime >= DateTime.SpecifyKind(StartDate, DateTimeKind.Utc)
                      && t.PunchTime < DateTime.SpecifyKind(EndDate, DateTimeKind.Utc)
-               group t by new
+            group t by new
                {
                    t.DeviceUserId,
                    t.DeviceId,
