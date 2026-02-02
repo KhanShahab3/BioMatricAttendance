@@ -25,30 +25,18 @@ namespace BioMatricAttendance.Services
          
 
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(null, null);
-
-
-
             var institutes = await _regionRepo.GetInstitutesAsync(regionId, districtId);
             var instituteIds = institutes.Select(i => i.Id).ToList();
 
             if (!instituteIds.Any())
                 return new RegionDashboardDto();
-
-          
             var devices = await _regionRepo.GetDevicesAsync(instituteIds);
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
-
-          
             var candidates = await _repo.GetCandidatesByDeviceIds(deviceIds);
-
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
-
-         
             var logs = await _repo.GetTimeLogs(deviceIds,  startUtc,endUtc);
             var presentIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToList();
-
-           
             var summary = new RegionDashboardSummaryDto
             {
                 TotalInstitutes = institutes.Count,
@@ -121,8 +109,8 @@ namespace BioMatricAttendance.Services
                     TotalDevices = instDeviceIds.Count,
                     ActiveDevices = instLogs.Select(l => l.DeviceId).Distinct().Count(),
 
-                    MaleCount = candidates.Count(c => c.gender == Gender.Male),
-                    FemaleCount = candidates.Count(c => c.gender == Gender.Female),
+                    MaleCount = instCandidates.Count(c => c.gender == Gender.Male),
+                    FemaleCount = instCandidates.Count(c => c.gender == Gender.Female),
                 });
             }
 

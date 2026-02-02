@@ -11,8 +11,8 @@
             var startPk = (startDatePk ?? todayPk);
             var endPk = (endDatePk ?? todayPk.Date.AddDays(1)).Date; 
 
-            var startUtc = DateTime.SpecifyKind(startPk.Date, DateTimeKind.Utc);
-            var endUtc = DateTime.SpecifyKind(endPk.Date, DateTimeKind.Utc);
+            var startUtc = DateTime.SpecifyKind(startPk, DateTimeKind.Utc);
+            var endUtc = DateTime.SpecifyKind(endPk, DateTimeKind.Utc);
 
             return (startUtc, endUtc);
         }
