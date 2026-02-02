@@ -13,6 +13,10 @@
 
             var startUtc = DateTime.SpecifyKind(startPk.Date, DateTimeKind.Utc);
             var endUtc = DateTime.SpecifyKind(endPk.Date, DateTimeKind.Utc);
+            if (startUtc.Date == endUtc.Date)
+            {
+               endUtc= endUtc.Date.AddDays(1);
+            }
 
             return (startUtc, endUtc);
         }

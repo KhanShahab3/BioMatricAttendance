@@ -92,7 +92,7 @@ namespace BioMatricAttendance.Services
                     .Where(c => instDeviceIds.Contains(c.DeviceId))
                     .ToList();
 
-                if (!instCandidates.Any()) continue;
+                //if (!instCandidates.Any()) continue;
 
                 var instFaculty = instCandidates.Where(c => c.Previliges == "Manager").ToList();
                 var instStudents = instCandidates.Where(c => c.Previliges == "NormalUser").ToList();
@@ -121,8 +121,8 @@ namespace BioMatricAttendance.Services
                     TotalDevices = instDeviceIds.Count,
                     ActiveDevices = instLogs.Select(l => l.DeviceId).Distinct().Count(),
 
-                    MaleCount = candidates.Count(c => c.gender == Gender.Male),
-                    FemaleCount = candidates.Count(c => c.gender == Gender.Female),
+                    MaleCount = instCandidates.Count(c => c.gender == Gender.Male),
+                    FemaleCount = instCandidates.Count(c => c.gender == Gender.Female),
                 });
             }
 
