@@ -139,7 +139,7 @@ namespace BioMatricAttendance.Repositories
             var instituteIds = institutes.Select(i => i.Id).ToList();
 
             var devices = await _context.BiomatricDevices
-                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted)
+                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted && d.isRegistered)
                 .ToListAsync();
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
@@ -159,7 +159,7 @@ namespace BioMatricAttendance.Repositories
             var todayLogs = await _context.TimeLogs
                 .Where(t => deviceIds.Contains(t.DeviceId) &&
                             t.PunchTime.Date >= startUtc.Date &&
-                            t.PunchTime.Date <= endUtc.Date).ToListAsync();
+                            t.PunchTime.Date < endUtc.Date).ToListAsync();
             var presentCandidateIds = todayLogs
                 .Select(t => (int)t.DeviceUserId)
                 .Distinct()
@@ -295,7 +295,7 @@ namespace BioMatricAttendance.Repositories
 
             
             var devices = await _context.BiomatricDevices
-                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted)
+                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted && d.isRegistered)
                 .ToListAsync();
 
             var deviceIds = devices.Select(d => d.DeviceId).ToList();

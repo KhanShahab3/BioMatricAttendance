@@ -80,7 +80,7 @@ namespace BioMatricAttendance.Services
                     .Where(c => instDeviceIds.Contains(c.DeviceId))
                     .ToList();
 
-                if (!instCandidates.Any()) continue;
+                //if (!instCandidates.Any()) continue;
 
                 var instFaculty = instCandidates.Where(c => c.Previliges == "Manager").ToList();
                 var instStudents = instCandidates.Where(c => c.Previliges == "NormalUser").ToList();
