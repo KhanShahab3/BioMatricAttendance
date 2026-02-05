@@ -4,6 +4,8 @@ using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +43,8 @@ builder.Services.AddScoped<ICourseCandidateService,CouserCandidateService>();
 builder.Services.AddScoped<IRegionDashboardService,RegionDashboardService>();
 builder.Services.AddScoped<IDistrictRepository,DistrictRepository>();
 builder.Services.AddScoped<IDistrictService,DistrictService>();
+builder.Services.AddScoped<ILeaveManagmentService,LeaveManagmentService>();
+builder.Services.AddScoped<IShiftService, ShiftService>();
 builder.Services.AddScoped<JwtService>();
 
 
@@ -80,8 +84,37 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key),
+        RoleClaimType = ClaimTypes.Role,
         ClockSkew = TimeSpan.Zero
     };
+});
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SDWebApi", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Bearer[space] token here ",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference=new OpenApiReference
+                        {
+                            Id="Bearer",
+                            Type=ReferenceType.SecurityScheme
+                        }
+                    },
+                    new List<string>()
+                }
+            });
 });
 
 builder.Services.AddAuthorization();

@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace BioMatricAttendance.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "super_admin")]
     public class SuperAdminDashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

@@ -18,10 +18,12 @@ namespace BioMatricAttendance.AttendenceContext
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Region>Regions { get; set; }
         public DbSet<TimeLogs> TimeLogs { get; set; }
-
         public DbSet<District> Districts { get; set; }
         public DbSet<CandidateCourses> CandidateCourses { get; set; }
-
+        public DbSet<Leave> Leaves { get; set; }
+        public DbSet<LeaveType> LeaveTypes { get; set; }
+        public DbSet<CandidateShift>CandidateShifts { get; set; }
+        public DbSet<ShiftType> ShiftTypes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BiomatricDevice>()
