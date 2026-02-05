@@ -8,7 +8,7 @@ namespace BioMatricAttendance.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "super_admin")]
+    //[Authorize(Roles = "super_admin")]
     public class SuperAdminDashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

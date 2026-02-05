@@ -1,16 +1,15 @@
-﻿using BioMatricAttendance.DTOsModel;
+﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.Models;
 
-namespace BioMatricAttendance.Services
+namespace BioMatricAttendance.Repositories
 {
-    public interface IShiftService
+    public interface IShiftTypeRepository
     {
-        Task AssignShiftAsync(AssignShiftDto dto);
-
         Task<ShiftType> GetShiftById(int Id);
         Task<ShiftType> CreateShift(ShiftType shift);
         Task<List<ShiftType>> GetAllShifts();
         Task<bool> DeleteShiftType(int Id);
         Task<ShiftType> UpdateShiftType(ShiftType shift);
+
     }
 }
