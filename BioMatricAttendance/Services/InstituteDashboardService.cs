@@ -248,7 +248,7 @@ namespace BioMatricAttendance.Services
             return result;
         }
 
-        public async Task<InstituteAttendanceReportDto> GetAttendanceReportAsync(int instituteId, DateTime ?startDate, DateTime? endDate)
+        public async Task<InstituteAttendanceReportDto> GetAttendanceReportAsync(int? instituteId, DateTime ?startDate, DateTime? endDate)
         {
 
           var(startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);    

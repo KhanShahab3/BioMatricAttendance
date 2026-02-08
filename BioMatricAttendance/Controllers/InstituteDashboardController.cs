@@ -57,10 +57,15 @@ namespace BioMatricAttendance.Controllers
 
         [HttpGet("Institute/AttendanceReports")]
 
-        public async Task<IActionResult>GetInstituteAttendanceReports([FromQuery] int instituteId, [FromQuery] DateTime ?startDate, [FromQuery] DateTime? endDate)
+        public async Task<IActionResult>GetInstituteAttendanceReports( [FromQuery] DateTime ?startDate, [FromQuery] DateTime? endDate)
 
         {
-           
+            int? instituteId = null;
+
+
+            var instituteClaim = User.FindFirst("InstituteId")?.Value;
+            if (!string.IsNullOrEmpty(instituteClaim))
+                instituteId = int.Parse(instituteClaim);
 
 
             var instituteAttendance=await _instituteDashboardService.GetAttendanceReportAsync(instituteId, startDate, endDate);
