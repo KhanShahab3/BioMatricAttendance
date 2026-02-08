@@ -18,12 +18,10 @@ namespace BioMatricAttendance.Services
         }
 
         public async Task<RegionDashboardDto> GetRegionDashboardAsync(
-            int regionId,
+            int? regionId,
             int? districtId
             )
         {
-         
-
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(null, null);
             var institutes = await _regionRepo.GetInstitutesAsync(regionId, districtId);
             var instituteIds = institutes.Select(i => i.Id).ToList();

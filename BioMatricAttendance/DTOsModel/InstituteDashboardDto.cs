@@ -20,6 +20,9 @@
 
         public int TotalCourses { get; set; }
         public int StudentsAbsent { get; set; }
+
+        public List<ShiftWiseAttendanceDto> ShiftWiseAttendance { get; set; }
+
         //public int StudentsOvertime { get; set; }
 
         //public List<ShiftAttendanceDto> ShiftWise { get; set; }

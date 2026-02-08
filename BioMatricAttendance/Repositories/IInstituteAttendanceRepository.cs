@@ -7,7 +7,7 @@ namespace BioMatricAttendance.Repositories
         //Task<Institute> GetInstituteById(int instituteId);
 
     
-        Task<List<BiomatricDevice>> GetDevicesByInstituteId(int instituteId);
+        Task<List<BiomatricDevice>> GetDevicesByInstituteId(int? instituteId);
 
         Task<List<Candidate>> GetCandidatesByDeviceIds(List<long> deviceIds);
 
@@ -15,6 +15,6 @@ namespace BioMatricAttendance.Repositories
         Task<List<TimeLogs>> GetTimeLogs(List<long> deviceIds, DateTime from, DateTime to);
 
       
-        Task<int> GetCourseCountByInstituteId(int instituteId);
+        Task<int> GetCourseCountByInstituteId(int? instituteId);
     }
 }

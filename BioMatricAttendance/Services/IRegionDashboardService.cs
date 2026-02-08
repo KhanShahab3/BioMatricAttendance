@@ -5,7 +5,7 @@ namespace BioMatricAttendance.Services
     public interface IRegionDashboardService
     {
         Task<RegionDashboardDto> GetRegionDashboardAsync(
-       int regionId,
+       int ?regionId,
        int? districtId);
 
         Task<RegionalDashboardReportDto> GetRegionalDashboardAsync(

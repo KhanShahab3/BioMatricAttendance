@@ -1,7 +1,9 @@
-﻿using BioMatricAttendance.DTOsModel;
+﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Helper;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Services
 {
@@ -12,18 +14,21 @@ namespace BioMatricAttendance.Services
         private readonly ICourseRepository _courseRepository;
         private readonly IInstituteRepository _insRepo;
         private readonly ICourseCandidatesRepository _courseCandidatesRepository;
+        private readonly AppDbContext _appDbContext;
         public InstituteDashboardService(IInstituteAttendanceRepository instituteRepository, 
             ICourseRepository courseRepository,
             IInstituteRepository insRepo,
-            ICourseCandidatesRepository courseCandidatesRepository)
+            ICourseCandidatesRepository courseCandidatesRepository,
+            AppDbContext appDbContext)
         {
             _instituteRepository = instituteRepository;
             _courseRepository = courseRepository;
             _insRepo = insRepo;
             _courseCandidatesRepository = courseCandidatesRepository;
+            _appDbContext = appDbContext;
         }
 
-        public async Task<InstituteDashboardDto> GetInstituteDashboard(int instituteId)
+        public async Task<InstituteDashboardDto> GetInstituteDashboard(int? instituteId)
         {
             //var today = DateTime.UtcNow.AddHours(5).Date;
             //var fromUtc = today.AddHours(-5);
@@ -40,7 +45,7 @@ namespace BioMatricAttendance.Services
             var(startUtc, endUtc)=DateTimeHelper.GetUtcRangeForPakistanDate(null,null);
 
 
-
+            var today = startUtc.Date;
 
 
 
@@ -89,7 +94,58 @@ namespace BioMatricAttendance.Services
                 .Distinct()
                 .Count();
 
-            
+
+            var todayShiftAssignments = await _appDbContext.CandidateShifts
+      .Include(cs => cs.Candidate)
+      .Where(cs =>
+          cs.ShiftDate.Date == today &&
+          deviceIds.Contains(cs.Candidate.DeviceId))
+      .ToListAsync();
+
+            var shiftIds = todayShiftAssignments
+                .Select(cs => cs.ShiftId)
+                .Distinct()
+                .ToList();
+
+            var shifts = await _appDbContext.ShiftTypes
+                .Where(s => shiftIds.Contains(s.Id) && !s.isDeleted)
+                .ToListAsync();
+
+            var shiftWiseAttendance = shifts.Select(shift =>
+            {
+                var shiftCandidates = todayShiftAssignments
+                    .Where(cs => cs.ShiftId == shift.Id)
+                    .Select(cs => cs.Candidate)
+                    .ToList();
+
+                var shiftStudents = shiftCandidates
+                    .Where(c => c.Previliges == "NormalUser")
+                    .ToList();
+
+                var shiftFaculty = shiftCandidates
+                    .Where(c => c.Previliges == "Manager")
+                    .ToList();
+
+                var shiftStudentPresent =
+                    shiftStudents.Count(c => presentUserIds.Contains(c.DeviceUserId));
+
+                var shiftFacultyPresent =
+                    shiftFaculty.Count(c => presentUserIds.Contains(c.DeviceUserId));
+
+                return new ShiftWiseAttendanceDto
+                {
+                    ShiftId = shift.Id,
+                    ShiftName = shift.ShiftName,
+
+                    StudentPresent = shiftStudentPresent,
+                    StudentAbsent = shiftStudents.Count - shiftStudentPresent,
+
+                    FacultyPresent = shiftFacultyPresent,
+                    FacultyAbsent = shiftFaculty.Count - shiftFacultyPresent
+                };
+            }).ToList();
+
+
             var courseCount = await _instituteRepository.GetCourseCountByInstituteId(instituteId);
 
             return new InstituteDashboardDto
@@ -108,6 +164,7 @@ namespace BioMatricAttendance.Services
                 StudentsAbsent = studentAbsent,
 
                 TotalCourses = courseCount,
+                ShiftWiseAttendance = shiftWiseAttendance
                 //ActiveDevices = activeDevices,
                 //InactiveDevices = deviceIds.Count - activeDevices
             };
@@ -115,7 +172,7 @@ namespace BioMatricAttendance.Services
 
 
 
-        public async Task<List<CourseAttendanceDto>> GetCourseWiseAttendanceAsync(int instituteId)
+        public async Task<List<CourseAttendanceDto>> GetCourseWiseAttendanceAsync(int? instituteId)
         {
 
             var(toayUtc, tomorrowUtc)=DateTimeHelper.GetUtcRangeForPakistanDate(null,null);

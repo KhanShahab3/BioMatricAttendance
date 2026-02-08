@@ -23,28 +23,29 @@ namespace BioMatricAttendance.Services
 
         public async Task AssignShiftAsync(AssignShiftDto dto)
         {
-
-            var existing = await _appDbContext.CandidateShifts
+          
+            var existingShifts = await _appDbContext.CandidateShifts
                 .Where(cs => dto.CandidateIds.Contains(cs.CandidateId)
-                             && cs.ShiftDate.Date == dto.ShiftDate.Date)
-                .Select(cs => cs.CandidateId)
+                           )
                 .ToListAsync();
 
-            var toAssign = dto.CandidateIds.Except(existing).ToList();
+            if (existingShifts.Any())
+            {
+                _appDbContext.CandidateShifts.RemoveRange(existingShifts);
+            }
 
-            if (!toAssign.Any()) return;
-
-            var assignments = toAssign.Select(id => new CandidateShift
+     
+            var assignments = dto.CandidateIds.Select(id => new CandidateShift
             {
                 CandidateId = id,
                 ShiftId = dto.ShiftId,
-                ShiftDate = dto.ShiftDate.Date,
-                //AssignedBy = dto.AssignedBy
+                ShiftDate = dto.ShiftDate.Date
             }).ToList();
 
             await _appDbContext.CandidateShifts.AddRangeAsync(assignments);
             await _appDbContext.SaveChangesAsync();
         }
+
 
 
         public async Task<List<ShiftType>> GetAllShifts()

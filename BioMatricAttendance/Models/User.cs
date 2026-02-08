@@ -11,7 +11,9 @@ namespace BioMatricAttendance.Models
         public string Phone { get; set; }   
         public bool IsDeleted { get; set; } = false;
         public int RoleId { get; set; }
-       public int? InstituteId { get; set; }
+        public int? InstituteId { get; set; }
+        public int? RegionId { get; set; }
+        //public int? HQ { get; set; }
         [JsonIgnore]
         public Role ?Role { get; set; }
         [JsonIgnore]

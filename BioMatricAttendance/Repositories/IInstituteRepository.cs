@@ -1,6 +1,7 @@
 ﻿using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Response;
+using System.Threading.Tasks;
 
 namespace BioMatricAttendance.Repositories
 {
@@ -13,7 +14,7 @@ namespace BioMatricAttendance.Repositories
          Task<bool> DeleteInstitute(int id);
         Task<List<Institute>> GetInstituteCourses();
 
-        Task<string?> GetInstituteName(int instituteId);
+        Task<string?> GetInstituteName(int? instituteId);
         Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId);
         Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId);
         Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId);

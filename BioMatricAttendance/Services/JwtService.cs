@@ -23,7 +23,9 @@ namespace BioMatricAttendance.Services
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role?.RoleName ?? "")
+            new Claim(ClaimTypes.Role, user.Role?.RoleName ?? ""),
+              new Claim("InstituteId", user.InstituteId?.ToString() ?? ""),
+             new Claim("RegionId", user.RegionId?.ToString() ?? "")
         };
 
             var tokenDescriptor = new SecurityTokenDescriptor

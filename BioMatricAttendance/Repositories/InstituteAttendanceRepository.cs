@@ -13,7 +13,7 @@ namespace BioMatricAttendance.Repositories
             _context = context;
         }
 
-        public async Task<List<BiomatricDevice>> GetDevicesByInstituteId(int instituteId)
+        public async Task<List<BiomatricDevice>> GetDevicesByInstituteId(int? instituteId)
         {
             var devices=await _context.BiomatricDevices
                 .Where(d=>d.InstituteId==instituteId && d.isRegistered && !d.IsDeleted)
@@ -39,7 +39,7 @@ namespace BioMatricAttendance.Repositories
             return rawLogs;
         }
 
-        public async Task<int> GetCourseCountByInstituteId(int instituteId)
+        public async Task<int> GetCourseCountByInstituteId(int ?instituteId)
         {
             return await _context.Courses
                .CountAsync(c => c.InstituteId == instituteId &&

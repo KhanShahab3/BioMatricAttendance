@@ -12,7 +12,7 @@ namespace BioMatricAttendance.Repositories
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<Course>> GetCourseByInstituteId(int instituteId)
+        public async Task<List<Course>> GetCourseByInstituteId(int ?instituteId)
         {
             var courses=await _appDbContext.Courses
                 .Where(c=>c.InstituteId==instituteId && !c.IsDeleted)

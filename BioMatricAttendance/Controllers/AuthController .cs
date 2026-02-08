@@ -43,7 +43,8 @@ namespace BioMatricAttendance.Controllers
                 UserId = user.Id,
                 Name = user.Name,
                 Role = user.Role?.RoleName,
-                InstituteId = user.InstituteId  
+                RegionId=user.RegionId
+                 
             });
         }
     }

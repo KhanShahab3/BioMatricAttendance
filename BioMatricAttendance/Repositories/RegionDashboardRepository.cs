@@ -16,7 +16,7 @@ namespace BioMatricAttendance.Repositories
 
 
 
-        public async Task<List<Institute>> GetInstitutesAsync(int regionId, int? districtId)
+        public async Task<List<Institute>> GetInstitutesAsync(int? regionId, int? districtId)
         {
             var query = _context.Institutes
                 .Include(i => i.District)
