@@ -98,7 +98,7 @@ namespace BioMatricAttendance.Services
             var todayShiftAssignments = await _appDbContext.CandidateShifts
       .Include(cs => cs.Candidate)
       .Where(cs =>
-          cs.ShiftDate.Date == today &&
+         
           deviceIds.Contains(cs.Candidate.DeviceId))
       .ToListAsync();
 

@@ -14,66 +14,65 @@ namespace BioMatricAttendance.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<AbsentCandidateDto>>
-            GetAbsentCandidates(int? regionId, int? instituteId, DateTime startDate,DateTime endDate)
-
-
+        public async Task<List<AbsentCandidateDto>> GetAbsentCandidates(int? regionId, int? instituteId, DateTime startDate, DateTime endDate)
         {
-            var deviceIds= new List<long>();
+            var deviceIds = new List<long>();
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);
-            var test = regionId;
-            var test2 = instituteId;
 
             if (regionId > 0 && instituteId > 0)
             {
                 deviceIds = await _appDbContext.Institutes
-       .Where(i => i.Id == instituteId && i.RegionId == regionId && !i.IsDeleted)
-       .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
-       .ToListAsync();
+                    .Where(i => i.Id == instituteId && i.RegionId == regionId && !i.IsDeleted)
+                    .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
+                    .ToListAsync();
             }
             else
             {
                 deviceIds = await _appDbContext.Institutes
-                 .Where(i => !i.IsDeleted)
-                 .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
-                 .ToListAsync();
-
+                    .Where(i => !i.IsDeleted)
+                    .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
+                    .ToListAsync();
             }
+
             if (!deviceIds.Any())
                 return new List<AbsentCandidateDto>();
+
             var allCandidates = await _appDbContext.Candidates
                 .Where(c => c.Enable && deviceIds.Contains(c.DeviceId))
                 .ToListAsync();
+
             var presentDeviceUserIds = await _appDbContext.TimeLogs
-        .Where(tl => deviceIds.Contains(tl.DeviceId)
-                     && tl.PunchTime >= startUtc
-                     && tl.PunchTime < endUtc)
-        .Select(tl => tl.DeviceUserId)
-        .Distinct()
-        .ToListAsync();
+                .Where(tl => deviceIds.Contains(tl.DeviceId)
+                             && tl.PunchTime >= startUtc
+                             && tl.PunchTime < endUtc)
+                .Select(tl => tl.DeviceUserId)
+                .Distinct()
+                .ToListAsync();
 
             var strtdate = DateOnly.FromDateTime(startUtc.Date);
             var enddate = DateOnly.FromDateTime(endUtc.Date);
+
             var leaveCandidateIds = await _appDbContext.Leaves
+                .Where(l => l.LeaveDate >= strtdate && l.LeaveDate <= enddate)
+                .Select(l => l.CandidateId)
+                .ToListAsync();
 
-      .Where(l => l.LeaveDate >= strtdate  && l.LeaveDate<= enddate)
-      .Select(l => l.CandidateId)
-      .ToListAsync();
             var absentCandidates = allCandidates
-           .Where(c => !presentDeviceUserIds.Contains(c.DeviceUserId))
-           .Select(c => new AbsentCandidateDto
-           {
-               Id = c.Id,
-               Name = c.Name,
-               DeviceId = c.DeviceId,
-               DeviceUserId = c.DeviceUserId,
-               IsOnLeave = leaveCandidateIds.Contains(c.Id) 
-           })
-           .ToList();
-
+                .Where(c => !presentDeviceUserIds.Contains(c.DeviceUserId)) 
+                .Select(c => new AbsentCandidateDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    DeviceId = c.DeviceId,
+                    DeviceUserId = c.DeviceUserId,
+                    IsOnLeave = leaveCandidateIds.Contains(c.Id),
+                    gender = c.gender
+                })
+                .ToList();
 
             return absentCandidates;
         }
+
 
 
         public async Task AssignLeave(AssignLeaveDto dto)

@@ -7,7 +7,7 @@ namespace BioMatricAttendance.DTOsModel
 
         public List<int> CandidateIds { get; set; }
         public int  ShiftId { get; set; }
-        public DateTime ShiftDate { get; set; }
+        //public DateTime ShiftDate { get; set; }
         //public int AssignedBy { get; set; }
     }
 }
