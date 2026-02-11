@@ -19,9 +19,9 @@ namespace BioMatricAttendance.Controllers
             _leaveManagmentService = leaveManagmentService;
         }
         [HttpGet("absent")]
-        public async Task<IActionResult> GetAbsentCandidates([FromQuery]int regionId,  [FromQuery] int instituteId,DateTime startDate,DateTime endDate)
+        public async Task<IActionResult> GetAbsentCandidates([FromQuery]int ?regionId,  [FromQuery] int ?instituteId)
         {
-            var result = await _leaveManagmentService.GetAbsentCandidates(regionId,instituteId,startDate,endDate);
+            var result = await _leaveManagmentService.GetAbsentCandidates(regionId,instituteId);
             return Ok(result);
         }
 
@@ -29,12 +29,15 @@ namespace BioMatricAttendance.Controllers
         [HttpPost("assign")]
         public async Task<IActionResult> AssignLeave( AssignLeaveDto Dto)
         {
-            await _leaveManagmentService.AssignLeave(
+           var response= await _leaveManagmentService.AssignLeave(
           Dto
                 //Dto.AssignedBy
             );
 
-            return Ok(new { message = "Leave assigned successfully" });
+            if (!response.Sucess)
+                return BadRequest(response);
+
+            return Ok(response);
         }
     }
 }

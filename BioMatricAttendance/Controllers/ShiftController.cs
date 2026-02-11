@@ -19,11 +19,13 @@ namespace BioMatricAttendance.Controllers
         [HttpPost("assign")]
         public async Task<IActionResult> AssignShift( AssignShiftDto dto)
         {
-            if (dto == null || !dto.CandidateIds.Any())
-                return BadRequest("No candidates selected");
+           
 
-            await _shiftService.AssignShiftAsync(dto);
-            return Ok(new { Message = "Shifts assigned successfully" });
+          var response=  await _shiftService.AssignShiftAsync(dto);
+            if (!response.Sucess)
+                return BadRequest(response);
+
+            return Ok(response);
         }
         [HttpPost("createShiftType")]
         public async Task<IActionResult> CreateShiftType(ShiftType shift)

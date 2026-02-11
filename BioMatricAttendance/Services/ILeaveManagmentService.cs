@@ -1,11 +1,12 @@
 ﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Response;
 
 namespace BioMatricAttendance.Services
 {
     public interface ILeaveManagmentService
     {
-        Task<List<AbsentCandidateDto>> GetAbsentCandidates(int? regionId, int? instituteId, DateTime startDate, DateTime endDate);
+        Task<List<AbsentCandidateDto>> GetAbsentCandidates(int? regionId, int? instituteId);
 
-        Task AssignLeave(AssignLeaveDto assignLeaveDto);
+        Task<APIResponse<string>> AssignLeave(AssignLeaveDto dto);
     }
 }

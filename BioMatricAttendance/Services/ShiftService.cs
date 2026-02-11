@@ -2,6 +2,7 @@
 using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
+using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
@@ -85,30 +86,86 @@ namespace BioMatricAttendance.Services
 
 
 
-        public async Task AssignShiftAsync(AssignShiftDto dto)
+        public async Task<APIResponse<string>> AssignShiftAsync(AssignShiftDto dto)
         {
-            
-            var existingShifts = await _appDbContext.CandidateShifts
-                 .Where(cs => cs.ShiftId == dto.ShiftId)
+            // Candidate Validation
+            var validCandidateIds = await _appDbContext.Candidates
+                .Where(c => dto.CandidateIds.Contains(c.Id))
+                .Select(c => c.Id)
                 .ToListAsync();
 
-            if (existingShifts.Any())
+            var invalidIds = dto.CandidateIds.Except(validCandidateIds).ToList();
+            if (invalidIds.Any())
             {
-               
-                _appDbContext.CandidateShifts.RemoveRange(existingShifts);
+                return new APIResponse<string>
+                {
+                    Sucess = false,
+                    Message = $"Invalid Candidate Id(s): {string.Join(",", invalidIds)}",
+                    StatusCode = 400,
+                    Data = null
+                };
             }
 
-            
-            var assignments = dto.CandidateIds.Select(id => new CandidateShift
-            {
-                CandidateId = id,
-                ShiftId = dto.ShiftId,
-                CreatedAt = DateTime.UtcNow
-            }).ToList();
+            var selectedIds = validCandidateIds.ToHashSet();
 
-            await _appDbContext.CandidateShifts.AddRangeAsync(assignments);
+        
+            var existingShifts = await _appDbContext.CandidateShifts
+                .Where(cs => selectedIds.Contains(cs.CandidateId))
+                .ToListAsync();
+
+            _appDbContext.CandidateShifts.RemoveRange(existingShifts);
+            int deleteCount = existingShifts.Count;
+
+            if (dto.ShiftId > 0)  
+            {
+              
+                var shiftExists = await _appDbContext.ShiftTypes
+                    .AnyAsync(s => s.Id == dto.ShiftId);
+
+                if (!shiftExists)
+                {
+                    return new APIResponse<string>
+                    {
+                        Sucess = false,
+                        Message = $"Shift with Id {dto.ShiftId} does not exist",
+                        StatusCode = 400,
+                        Data = null
+                    };
+                }
+
+                var newShifts = selectedIds.Select(id => new CandidateShift
+                {
+                    CandidateId = id,
+                    ShiftId = dto.ShiftId,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await _appDbContext.CandidateShifts.AddRangeAsync(newShifts);
+            }
+
             await _appDbContext.SaveChangesAsync();
+
+           
+            string message;
+            if (deleteCount > 0 && dto.ShiftId > 0)
+                message = "Shift update";
+            else if (deleteCount > 0 && dto.ShiftId == 0)  
+                message = "Shift remove";
+            else if (deleteCount == 0 && dto.ShiftId > 0)
+                message = "Shift assign";
+            else
+                message = "No changes made";
+
+            return new APIResponse<string>
+            {
+                Sucess = true,
+                Message = message,
+                StatusCode = 200,
+                Data = null
+            };
         }
+
+
 
 
 

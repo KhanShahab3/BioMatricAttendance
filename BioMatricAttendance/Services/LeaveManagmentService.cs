@@ -2,10 +2,11 @@
 using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Helper;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Services
-{
+{ 
     public class LeaveManagmentService:ILeaveManagmentService
     {
         private readonly AppDbContext _appDbContext;
@@ -15,15 +16,14 @@ namespace BioMatricAttendance.Services
         }
 
         public async Task<List<AbsentCandidateDto>> GetAbsentCandidates(
-            int? regionId,
-            int? instituteId,
-            DateTime startDate,
-            DateTime endDate)
+         int? regionId,
+         int? instituteId)
         {
             var deviceIds = new List<long>();
-            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);
+            var today = DateTime.UtcNow.Date; 
+            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(today, today);
 
-        
+            
             if (regionId > 0 && instituteId > 0)
             {
                 deviceIds = await _appDbContext.Institutes
@@ -42,12 +42,11 @@ namespace BioMatricAttendance.Services
             if (!deviceIds.Any())
                 return new List<AbsentCandidateDto>();
 
-          
+           
             var allCandidates = await _appDbContext.Candidates
                 .Where(c => c.Enable && deviceIds.Contains(c.DeviceId))
                 .ToListAsync();
 
-           
             var presentDeviceUserIds = await _appDbContext.TimeLogs
                 .Where(tl => deviceIds.Contains(tl.DeviceId)
                              && tl.PunchTime >= startUtc
@@ -56,21 +55,20 @@ namespace BioMatricAttendance.Services
                 .Distinct()
                 .ToListAsync();
 
+        
             var strtdate = DateOnly.FromDateTime(startUtc.Date);
             var enddate = DateOnly.FromDateTime(endUtc.Date);
 
-        
             var leaves = await _appDbContext.Leaves
                 .Where(l => l.LeaveDate >= strtdate && l.LeaveDate <= enddate)
                 .Select(l => new { l.CandidateId, l.LeaveTypeId })
                 .ToListAsync();
 
-          
             var leaveTypes = await _appDbContext.LeaveTypes
                 .Select(lt => new { lt.Id, lt.TypeName })
                 .ToListAsync();
 
-         
+           
             var absentCandidates = allCandidates
                 .Where(c => !presentDeviceUserIds.Contains(c.DeviceUserId))
                 .Select(c =>
@@ -87,7 +85,8 @@ namespace BioMatricAttendance.Services
                         DeviceId = c.DeviceId,
                         DeviceUserId = c.DeviceUserId,
                         IsOnLeave = leave != null,
-                        LeaveTypeName = leaveTypeName, 
+                        LeaveTypeName = leaveTypeName,
+                        LeaveTypeId= leave?.LeaveTypeId,
                         gender = c.gender
                     };
                 })
@@ -100,31 +99,102 @@ namespace BioMatricAttendance.Services
 
 
 
-        public async Task AssignLeave(AssignLeaveDto dto)
+
+        public async Task<APIResponse<string>> AssignLeave(AssignLeaveDto dto)
         {
-            //var leaveDateUtc = DateTime.SpecifyKind(dto.LeaveDate.Date, DateTimeKind.Utc);
-            var(startDate,endDate)= DateTimeHelper.GetUtcRangeForPakistanDate(dto.LeaveDate, null);
+            var (startDate, _) = DateTimeHelper.GetUtcRangeForPakistanDate(dto.LeaveDate, null);
             var leaveDate = DateOnly.FromDateTime(startDate);
 
-            await _appDbContext.Leaves
-                .Where(l => l.LeaveDate == leaveDate)
-                .ExecuteDeleteAsync();
+            // Candidate Validation
+            var validCandidateIds = await _appDbContext.Candidates
+                .Where(c => dto.CandidateIds.Contains(c.Id))
+                .Select(c => c.Id)
+                .ToListAsync();
 
- 
-            var newLeaves = dto.CandidateIds.Select(id => new Leave
+            if (validCandidateIds.Count != dto.CandidateIds.Count)
             {
-                CandidateId = id,
-                LeaveTypeId = dto.LeaveTypeId,
-                LeaveDate = leaveDate,
-                CreatedAt = DateTime.UtcNow
-            });
+                return new APIResponse<string>
+                {
+                    Sucess = false,
+                    Message = "Invalid candidate IDs",
+                    StatusCode = 400,
+                    Data = null
+                };
+            }
 
-            await _appDbContext.Leaves.AddRangeAsync(newLeaves);
+          
+            var existingLeaves = await _appDbContext.Leaves
+                .Where(l => l.LeaveDate == leaveDate &&
+                            dto.CandidateIds.Contains(l.CandidateId))
+                .ToListAsync();
+
+            _appDbContext.Leaves.RemoveRange(existingLeaves);
+            int deleteCount = existingLeaves.Count;
+
+            if (dto.LeaveTypeId > 0)
+            {
+                var leaveTypeExists = await _appDbContext.LeaveTypes
+                    .AnyAsync(lt => lt.Id == dto.LeaveTypeId);
+
+                if (!leaveTypeExists)
+                {
+                    return new APIResponse<string>
+                    {
+                        Sucess = false,
+                        Message = "Invalid leave type",
+                        StatusCode = 400,
+                        Data = null
+                    };
+                }
+
+                var newLeaves = dto.CandidateIds.Select(id => new Leave
+                {
+                    CandidateId = id,
+                    LeaveTypeId = dto.LeaveTypeId,
+                    LeaveDate = leaveDate,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await _appDbContext.Leaves.AddRangeAsync(newLeaves);
+            }
+
             await _appDbContext.SaveChangesAsync();
+
+           
+            if (deleteCount > 0 && dto.LeaveTypeId ==0)
+            {
+                return new APIResponse<string>
+                {
+                    Sucess = true,
+                    Message = "Record deleted",
+                    StatusCode = 200,
+                    Data = null
+                };
+            }
+
+            if (deleteCount > 0 && dto.LeaveTypeId > 0)
+            {
+                return new APIResponse<string>
+                {
+                    Sucess = true,
+                    Message = "Leave update",
+                    StatusCode = 200,
+                    Data = null
+                };
+            }
+
+            return new APIResponse<string>
+            {
+                Sucess = true,
+                Message = "Leave Remove",
+                StatusCode = 200,
+                Data = null
+            };
         }
+
     }
 
-      
-        
-    }
+
+
+}
 

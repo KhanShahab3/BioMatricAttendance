@@ -1,11 +1,12 @@
 ﻿using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Response;
 
 namespace BioMatricAttendance.Services
 {
     public interface IShiftService
     {
-        Task AssignShiftAsync(AssignShiftDto dto);
+        Task<APIResponse<string>> AssignShiftAsync(AssignShiftDto dto);
 
         Task<ShiftType> GetShiftById(int Id);
         Task<ShiftType> CreateShift(ShiftType shift);
