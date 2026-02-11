@@ -14,11 +14,16 @@ namespace BioMatricAttendance.Services
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<AbsentCandidateDto>> GetAbsentCandidates(int? regionId, int? instituteId, DateTime startDate, DateTime endDate)
+        public async Task<List<AbsentCandidateDto>> GetAbsentCandidates(
+            int? regionId,
+            int? instituteId,
+            DateTime startDate,
+            DateTime endDate)
         {
             var deviceIds = new List<long>();
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);
 
+        
             if (regionId > 0 && instituteId > 0)
             {
                 deviceIds = await _appDbContext.Institutes
@@ -37,10 +42,12 @@ namespace BioMatricAttendance.Services
             if (!deviceIds.Any())
                 return new List<AbsentCandidateDto>();
 
+          
             var allCandidates = await _appDbContext.Candidates
                 .Where(c => c.Enable && deviceIds.Contains(c.DeviceId))
                 .ToListAsync();
 
+           
             var presentDeviceUserIds = await _appDbContext.TimeLogs
                 .Where(tl => deviceIds.Contains(tl.DeviceId)
                              && tl.PunchTime >= startUtc
@@ -52,26 +59,44 @@ namespace BioMatricAttendance.Services
             var strtdate = DateOnly.FromDateTime(startUtc.Date);
             var enddate = DateOnly.FromDateTime(endUtc.Date);
 
-            var leaveCandidateIds = await _appDbContext.Leaves
+        
+            var leaves = await _appDbContext.Leaves
                 .Where(l => l.LeaveDate >= strtdate && l.LeaveDate <= enddate)
-                .Select(l => l.CandidateId)
+                .Select(l => new { l.CandidateId, l.LeaveTypeId })
                 .ToListAsync();
 
+          
+            var leaveTypes = await _appDbContext.LeaveTypes
+                .Select(lt => new { lt.Id, lt.TypeName })
+                .ToListAsync();
+
+         
             var absentCandidates = allCandidates
-                .Where(c => !presentDeviceUserIds.Contains(c.DeviceUserId)) 
-                .Select(c => new AbsentCandidateDto
+                .Where(c => !presentDeviceUserIds.Contains(c.DeviceUserId))
+                .Select(c =>
                 {
-                    Id = c.Id,
-                    Name = c.Name,
-                    DeviceId = c.DeviceId,
-                    DeviceUserId = c.DeviceUserId,
-                    IsOnLeave = leaveCandidateIds.Contains(c.Id),
-                    gender = c.gender
+                    var leave = leaves.FirstOrDefault(l => l.CandidateId == c.Id);
+                    var leaveTypeName = leave != null
+                        ? leaveTypes.FirstOrDefault(lt => lt.Id == leave.LeaveTypeId)?.TypeName
+                        : null;
+
+                    return new AbsentCandidateDto
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        DeviceId = c.DeviceId,
+                        DeviceUserId = c.DeviceUserId,
+                        IsOnLeave = leave != null,
+                        LeaveTypeName = leaveTypeName, 
+                        gender = c.gender
+                    };
                 })
                 .ToList();
 
             return absentCandidates;
         }
+
+
 
 
 
@@ -81,25 +106,18 @@ namespace BioMatricAttendance.Services
             var(startDate,endDate)= DateTimeHelper.GetUtcRangeForPakistanDate(dto.LeaveDate, null);
             var leaveDate = DateOnly.FromDateTime(startDate);
 
-            var existingLeaves = await _appDbContext.Leaves
-           .Where(l => dto.CandidateIds.Contains(l.CandidateId)
-                       && l.LeaveDate == leaveDate)
-           .ToListAsync();
+            await _appDbContext.Leaves
+                .Where(l => l.LeaveDate == leaveDate)
+                .ExecuteDeleteAsync();
 
-            _appDbContext.Leaves.RemoveRange(existingLeaves);
-
-            var existingIds = existingLeaves.Select(l => l.CandidateId).ToHashSet();
-
-  
-            var newLeaves = dto.CandidateIds
-                //.Where(id => !existingIds.Contains(id))
-                .Select(id => new Leave
-                {
-                    CandidateId = id,
-                    LeaveTypeId = dto.LeaveTypeId,
-                    LeaveDate = leaveDate,
-                    CreatedAt = DateTime.UtcNow
-                });
+ 
+            var newLeaves = dto.CandidateIds.Select(id => new Leave
+            {
+                CandidateId = id,
+                LeaveTypeId = dto.LeaveTypeId,
+                LeaveDate = leaveDate,
+                CreatedAt = DateTime.UtcNow
+            });
 
             await _appDbContext.Leaves.AddRangeAsync(newLeaves);
             await _appDbContext.SaveChangesAsync();

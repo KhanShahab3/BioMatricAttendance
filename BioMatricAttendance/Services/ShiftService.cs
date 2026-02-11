@@ -20,8 +20,8 @@ namespace BioMatricAttendance.Services
 
         public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
             int? instituteId,
-            int? regionId,
-            int? shiftId)
+            int? regionId
+            )
         {
          
             var deviceIdsQuery = _appDbContext.Institutes
@@ -50,12 +50,12 @@ namespace BioMatricAttendance.Services
                 .Include(cs => cs.Shift)
                 .Where(cs => deviceIds.Contains(cs.Candidate.DeviceId));
 
-            if (shiftId > 0)
-            {
-                candidateShiftsQuery = candidateShiftsQuery.Where(cs => cs.ShiftId == shiftId); 
-                var candidateIdsWithShift = candidateShiftsQuery.Select(cs => cs.CandidateId).ToHashSet();
-                candidates = candidates.Where(c => candidateIdsWithShift.Contains(c.Id)).ToList();
-            }
+            //if (shiftId > 0)
+            //{
+            //    candidateShiftsQuery = candidateShiftsQuery.Where(cs => cs.ShiftId == shiftId); 
+            //    var candidateIdsWithShift = candidateShiftsQuery.Select(cs => cs.CandidateId).ToHashSet();
+            //    candidates = candidates.Where(c => candidateIdsWithShift.Contains(c.Id)).ToList();
+            //}
 
 
             var result = candidates.Select(c =>
@@ -89,7 +89,7 @@ namespace BioMatricAttendance.Services
         {
             
             var existingShifts = await _appDbContext.CandidateShifts
-                .Where(cs => dto.CandidateIds.Contains(cs.CandidateId))
+                 .Where(cs => cs.ShiftId == dto.ShiftId)
                 .ToListAsync();
 
             if (existingShifts.Any())

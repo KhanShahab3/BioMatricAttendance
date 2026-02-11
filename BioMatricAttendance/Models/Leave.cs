@@ -5,6 +5,7 @@
         public int Id { get; set; } 
         public int CandidateId { get; set; }
         public int LeaveTypeId { get; set; }
+        public LeaveType LeaveType { get; set; }
         public DateOnly LeaveDate { get; set; }          
         
 

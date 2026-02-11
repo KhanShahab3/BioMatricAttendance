@@ -69,10 +69,10 @@ namespace BioMatricAttendance.Controllers
         [HttpGet("CandidateShift")]
 
         public async Task<IActionResult> GetShiftCandidate([FromQuery] int? instituteId,
-        [FromQuery] int? regionId,
-        [FromQuery] int? shiftId)
+        [FromQuery] int? regionId
+       )
         {
-            var candidates = await _shiftService.GetCandidatesWithShift(instituteId, regionId, shiftId);
+            var candidates = await _shiftService.GetCandidatesWithShift(instituteId, regionId);
             if(candidates == null)
             {
                 return NotFound("No candiates found");

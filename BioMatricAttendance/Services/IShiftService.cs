@@ -14,7 +14,7 @@ namespace BioMatricAttendance.Services
         Task<ShiftType> UpdateShiftType(ShiftType shift);
         Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
              int? instituteId ,
-             int? regionId,
-             int? shiftId);
+             int? regionId
+             );
     }
 }

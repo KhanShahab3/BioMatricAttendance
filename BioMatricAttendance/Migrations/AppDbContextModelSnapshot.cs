@@ -350,6 +350,8 @@ namespace BioMatricAttendance.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LeaveTypeId");
+
                     b.ToTable("Leaves");
                 });
 
@@ -641,6 +643,17 @@ namespace BioMatricAttendance.Migrations
                     b.Navigation("District");
 
                     b.Navigation("Region");
+                });
+
+            modelBuilder.Entity("BioMatricAttendance.Models.Leave", b =>
+                {
+                    b.HasOne("BioMatricAttendance.Models.LeaveType", "LeaveType")
+                        .WithMany()
+                        .HasForeignKey("LeaveTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LeaveType");
                 });
 
             modelBuilder.Entity("BioMatricAttendance.Models.User", b =>
