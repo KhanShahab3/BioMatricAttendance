@@ -17,5 +17,7 @@ namespace BioMatricAttendance.Services
              int? instituteId ,
              int? regionId
              );
+
+        Task<APIResponse<string>> RemoveShiftAsync(int candidateId);
     }
 }

@@ -12,16 +12,17 @@ namespace BioMatricAttendance.Controllers
     {
         private readonly IShiftService _shiftService;
 
-        public ShiftController(IShiftService shiftService) {
-        
-        _shiftService = shiftService;
+        public ShiftController(IShiftService shiftService)
+        {
+
+            _shiftService = shiftService;
         }
         [HttpPost("assign")]
-        public async Task<IActionResult> AssignShift( AssignShiftDto dto)
+        public async Task<IActionResult> AssignShift(AssignShiftDto dto)
         {
-           
 
-          var response=  await _shiftService.AssignShiftAsync(dto);
+
+            var response = await _shiftService.AssignShiftAsync(dto);
             if (!response.Sucess)
                 return BadRequest(response);
 
@@ -35,13 +36,13 @@ namespace BioMatricAttendance.Controllers
             await _shiftService.CreateShift(shift);
             return Ok(new { Message = "Shift type created successfully" });
         }
-        [HttpGet("getAllShifts")]
+        [HttpGet("getAllShiftTypes")]
         public async Task<IActionResult> GetAllShifts()
         {
             var shifts = await _shiftService.GetAllShifts();
             return Ok(shifts);
         }
-        [HttpGet("getShiftById/{id}")]
+        [HttpGet("getShiftTypeById/{id}")]
         public async Task<IActionResult> GetShiftById(int id)
         {
             var shift = await _shiftService.GetShiftById(id);
@@ -50,15 +51,15 @@ namespace BioMatricAttendance.Controllers
             return Ok(shift);
         }
 
-        [HttpPut("updateShift")]
-  public async Task<IActionResult>UpdateShift(ShiftType shift)
+        [HttpPut("updateShiftType")]
+        public async Task<IActionResult> UpdateShift(ShiftType shift)
         {
             if (shift == null || shift.Id <= 0)
                 return BadRequest("Invalid shift type data");
-            var updatedShift = await _shiftService.UpdateShiftType(shift);  
+            var updatedShift = await _shiftService.UpdateShiftType(shift);
             return Ok(new { Message = "Shift type updated successfully", Data = updatedShift });
         }
-        [HttpDelete("deleteShift/{id}")]
+        [HttpDelete("deleteShiftType/{id}")]
         public async Task<IActionResult> DeleteShift(int id)
         {
             if (id <= 0)
@@ -66,21 +67,26 @@ namespace BioMatricAttendance.Controllers
             await _shiftService.DeleteShiftType(id);
             return Ok(new { Message = "Shift type deleted successfully" });
         }
-
-
-        [HttpGet("CandidateShift")]
-
+        [HttpGet("getCandidateShift")]
         public async Task<IActionResult> GetShiftCandidate([FromQuery] int? instituteId,
         [FromQuery] int? regionId
        )
         {
             var candidates = await _shiftService.GetCandidatesWithShift(instituteId, regionId);
-            if(candidates == null)
+            if (candidates == null)
             {
                 return NotFound("No candiates found");
             }
             return Ok(candidates);
         }
+        [HttpDelete("removeAssignedShift/{candidateId}")]
+        public async Task<IActionResult> RemoveShift(int candidateId)
+        {
+            var response = await _shiftService.RemoveShiftAsync(candidateId);
+            if (!response.Sucess)
+                return BadRequest(response);
+            return Ok(response);
 
+        }
     }
 }

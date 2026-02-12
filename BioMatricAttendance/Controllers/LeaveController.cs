@@ -19,25 +19,40 @@ namespace BioMatricAttendance.Controllers
             _leaveManagmentService = leaveManagmentService;
         }
         [HttpGet("absent")]
-        public async Task<IActionResult> GetAbsentCandidates([FromQuery]int ?regionId,  [FromQuery] int ?instituteId)
+        public async Task<IActionResult> GetAbsentCandidates([FromQuery] int? regionId, [FromQuery] int? instituteId)
         {
-            var result = await _leaveManagmentService.GetAbsentCandidates(regionId,instituteId);
+            var result = await _leaveManagmentService.GetAbsentCandidates(regionId, instituteId);
             return Ok(result);
         }
 
-     
+
         [HttpPost("assign")]
-        public async Task<IActionResult> AssignLeave( AssignLeaveDto Dto)
+        public async Task<IActionResult> AssignLeave(AssignLeaveDto Dto)
         {
-           var response= await _leaveManagmentService.AssignLeave(
-          Dto
-                //Dto.AssignedBy
-            );
+            var response = await _leaveManagmentService.AssignLeave(
+           Dto
+             //Dto.AssignedBy
+             );
 
             if (!response.Sucess)
                 return BadRequest(response);
 
             return Ok(response);
+        }
+
+        [HttpDelete("remove/{candidateId}")]
+        public async Task<IActionResult> RemoveLeave(int candidateId)
+        {
+            var response = await _leaveManagmentService.RemoveLeave(candidateId);
+            if (!response.Sucess)
+                return BadRequest(response);
+            return Ok(response);
+        }
+        [HttpGet("leaveTypes")]
+        public async Task<IActionResult> GetAllLeaveTypes()
+        {
+            var leaveTypes = await _leaveManagmentService.GetAllLeaveTypes();
+            return Ok(leaveTypes);
         }
     }
 }

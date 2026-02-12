@@ -108,11 +108,33 @@ namespace BioMatricAttendance.Services
 
             var selectedIds = validCandidateIds.ToHashSet();
 
-        
+            if (dto.ShiftId == null || dto.ShiftId <= 0)
+            {
+                return new APIResponse<string>
+                {
+                    Sucess = false,
+                    Message = "Shift type is required for assignment",
+                    StatusCode = 400,
+                    Data = null
+                };
+            }
+
+
             var existingShifts = await _appDbContext.CandidateShifts
                 .Where(cs => selectedIds.Contains(cs.CandidateId))
                 .ToListAsync();
 
+
+            if (existingShifts==null)
+            {
+                return new APIResponse<string>
+                {
+                    Sucess = false,
+                    Message = $"Shift with Id {dto.ShiftId} does not exist",
+                    StatusCode = 400,
+                    Data = null
+                };
+            }
             _appDbContext.CandidateShifts.RemoveRange(existingShifts);
             int deleteCount = existingShifts.Count;
 
@@ -149,8 +171,6 @@ namespace BioMatricAttendance.Services
             string message;
             if (deleteCount > 0 && dto.ShiftId > 0)
                 message = "Shift update";
-            else if (deleteCount > 0 && dto.ShiftId == 0)  
-                message = "Shift remove";
             else if (deleteCount == 0 && dto.ShiftId > 0)
                 message = "Shift assign";
             else
@@ -200,8 +220,38 @@ namespace BioMatricAttendance.Services
 
         }
 
-      
-     
+        public async Task<APIResponse<string>> RemoveShiftAsync(int candidateId)
+        {
+            var shiftToRemove = await _appDbContext.CandidateShifts
+      .FirstOrDefaultAsync(cs => cs.CandidateId == candidateId);
+
+            if (shiftToRemove != null)
+            {
+                _appDbContext.CandidateShifts.Remove(shiftToRemove);
+                await _appDbContext.SaveChangesAsync();
+
+                return new APIResponse<string>
+                {
+                    Sucess = true,
+                    Message = $"Candidate {candidateId} removed",
+                    StatusCode = 200,
+                    Data = null
+                };
+            }
+
+            return new APIResponse<string>
+            {
+                Sucess = true,
+                Message = $"Candidate not found",
+                StatusCode = 200,
+                Data = null
+            };
+
+        }
+
+
+
+
 
 
     }
