@@ -58,6 +58,8 @@ builder.Services.AddCors(options =>
         {
             "http://localhost:5173",
             "https://wonderful-florentine-84e2e4.netlify.app/",
+            "https://stevta.com",
+             "http://stevta.com",
 
 
 
