@@ -24,7 +24,7 @@ namespace BioMatricAttendance.Repositories
         }
         public async Task<List<BiomatricDevice>> GetAllDevices()
         {
-            var devices = await _appContext.BiomatricDevices.Where(x=>!x.isRegistered).ToListAsync();
+            var devices = await _appContext.BiomatricDevices.ToListAsync();
             return devices;
         }
         public async Task<BiomatricDevice> UpdateDevice(BiomatricDevice device)

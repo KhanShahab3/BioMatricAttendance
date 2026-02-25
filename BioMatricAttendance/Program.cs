@@ -46,6 +46,7 @@ builder.Services.AddScoped<IDistrictService,DistrictService>();
 builder.Services.AddScoped<ILeaveManagmentService,LeaveManagmentService>();
 builder.Services.AddScoped<IShiftService, ShiftService>();
 builder.Services.AddScoped<IShiftTypeRepository, ShiftTypeRepository>();
+builder.Services.AddScoped<IDistrictDashboardServicecs, DistrictDashboardService>();
 builder.Services.AddScoped<JwtService>();
 
 

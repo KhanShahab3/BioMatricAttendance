@@ -26,6 +26,9 @@ namespace BioMatricAttendance.Services
             {
                 Id = d.Id,
                 DeviceId = d.DeviceId,
+                SessionId = d.SessionId,
+                isRegistered = d.isRegistered,
+                CreatedAt=d.CreatedAt
             }).ToList();
         }
         public async Task<BiomatricDevice> UpdateDevice(BiomatricDevice device)

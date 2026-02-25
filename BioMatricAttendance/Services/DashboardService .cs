@@ -105,17 +105,17 @@ namespace BioMatricAttendance.Services
             };
         }
         public async Task<AttendanceDetailedReportDto> GetAttendanceReportAsync(
-  int? regionId,
-  DateTime? startDate,
-  DateTime? endDate)
+      int? regionId,
+      DateTime? startDate,
+      DateTime? endDate)
         {
             var institutes = await _dashboardRepository.GetInstitutes(regionId);
-                var instituteIds = institutes.Select(i => i.Id).ToList();
+            var instituteIds = institutes.Select(i => i.Id).ToList();
             var devices = await _dashboardRepository.GetDevices(instituteIds);
             var deviceIds=devices.Select(d => d.DeviceId).ToList();
-                var candidates = await _dashboardRepository.GetCandidates(deviceIds);
-                var candidateIds=candidates.Select(c => c.Id).ToList();
-                var logs = await _dashboardRepository.GetLogs(deviceIds, startDate, endDate);
+            var candidates = await _dashboardRepository.GetCandidates(deviceIds);
+            var candidateIds=candidates.Select(c => c.Id).ToList();
+            var logs = await _dashboardRepository.GetLogs(deviceIds, startDate, endDate);
 
             var presentCandidateIds = logs
         .Select(t => (int)t.DeviceUserId)
