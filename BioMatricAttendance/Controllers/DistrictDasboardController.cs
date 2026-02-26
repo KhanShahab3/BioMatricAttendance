@@ -18,9 +18,14 @@ namespace BioMatricAttendance.Controllers
 
         public async Task<IActionResult> GetDistrictDashboard(
             [FromQuery] int districtId,
-            [FromQuery] int? instituteId)
+            [FromQuery] int? instituteId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+
+
+            )
         {
-            var dashboard = await _districtDashboardService.GetDistrictDashboard(districtId, instituteId);
+            var dashboard = await _districtDashboardService.GetDistrictDashboard(districtId, instituteId,pageNumber,pageSize);
             return Ok(dashboard);
 
         }
@@ -31,7 +36,8 @@ namespace BioMatricAttendance.Controllers
 
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate,
-             [FromQuery] int? instituteId=null
+
+             [FromQuery] int? instituteId
             )
         {
             var report = await _districtDashboardService.GetDashboardReportDto(districtId, startDate, endDate ,instituteId);

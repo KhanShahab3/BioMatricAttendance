@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.Models;
+using BioMatricAttendance.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Repositories
@@ -13,6 +14,17 @@ namespace BioMatricAttendance.Repositories
         }
 
 
+        public async Task<List<Institute>>GetInstituteByDistrictId(int? instituteId,int districtId)
+        {
+           var result= _context.Institutes
+                .Where(i => i.DistrictId == districtId && !i.IsDeleted);
+
+            if (instituteId > 0)
+            {
+               result= result.Where(i => i.Id == instituteId);
+            }
+              return await result.ToListAsync();
+        }
 
 
 
@@ -22,7 +34,7 @@ namespace BioMatricAttendance.Repositories
                 .Include(i => i.District)
                 .Where(i => i.RegionId == regionId && !i.IsDeleted);
 
-            if (districtId.HasValue)
+            if (districtId>0)
             {
                 query = query.Where(i => i.DistrictId == districtId.Value);
             }
@@ -34,6 +46,7 @@ namespace BioMatricAttendance.Repositories
         {
             return await _context.BiomatricDevices
                 .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted && d.isRegistered)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

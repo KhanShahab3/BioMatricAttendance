@@ -12,7 +12,7 @@ namespace BioMatricAttendance.Repositories
         //    List<int> deviceIds,
         //    DateTime fromUtc,
         //    DateTime toUtc);
-
+        Task<List<Institute>> GetInstituteByDistrictId(int? instituteId, int districtId);
         Task<int> GetCourseCountAsync(List<int> instituteIds);
     }
 }

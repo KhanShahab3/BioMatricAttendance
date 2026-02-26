@@ -10,19 +10,33 @@ namespace BioMatricAttendance.Services
         private readonly IRegionDashboardRepository _regionRepo;
         private readonly IInstituteAttendanceRepository _repo;
 
+        public DistrictDashboardService(IRegionDashboardRepository regionRepo, IInstituteAttendanceRepository repo)
+        {
+            _regionRepo = regionRepo;
+            _repo = repo;
+        }
+
 
         public async Task<DistrictDashboardDto> GetDistrictDashboard(
-    int districtId,
-    int? instituteId = null
-)
+        int districtId,
+        int? instituteId,
+        int pageNumber=1,
+        int pageSize= 10
+
+
+
+
+            )
         {
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(null, null);
 
 
-            var institutes = await _regionRepo.GetInstitutesAsync(null, districtId);
+            var institutes = await _regionRepo.GetInstituteByDistrictId(instituteId, districtId);
 
-            if (instituteId.HasValue)
-                institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
+            var totalInstitutes = institutes.Count;
+
+            //if (instituteId>0)
+            //    institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
 
             var instituteIds = institutes.Select(i => i.Id).ToList();
             if (!instituteIds.Any())
@@ -42,19 +56,7 @@ namespace BioMatricAttendance.Services
 
             double dutyHours = 8;
             var facultyLogs = logs.Where(l => faculty.Any(f => f.DeviceUserId == l.DeviceUserId)).ToList();
-            //var workingHoursByFaculty = facultyLogs
-            //    .GroupBy(l => l.DeviceUserId)
-            //    .ToDictionary(
-            //        g => (int)g.Key,
-            //        g =>
-            //        {
-            //            var first = g.Min(x => x.LogDate);
-            //            var last = g.Max(x => x.LogDate);
-            //            return (last - first).TotalHours;
-            //        });
-            //var facultyOvertimeCount = workingHoursByFaculty.Count(f => f.Value > dutyHours);
-
-            // 6️⃣ Summary
+  
             var summary = new DistrictDashboardSummaryDto
             {
                 TotalInstitutes = institutes.Count,
@@ -84,10 +86,13 @@ namespace BioMatricAttendance.Services
 
                 TotalCourses = await _regionRepo.GetCourseCountAsync(instituteIds)
             };
-
+            var pagedInstitutes = institutes
+    .Skip((pageNumber - 1) * pageSize)
+    .Take(pageSize)
+    .ToList();
 
             var instituteRows = new List<InstituteComparisonDto>();
-            foreach (var institute in institutes)
+            foreach (var institute in pagedInstitutes)
             {
                 var instDeviceIds = devices
                     .Where(d => d.InstituteId == institute.Id)
@@ -136,7 +141,10 @@ namespace BioMatricAttendance.Services
             return new DistrictDashboardDto
             {
                 Summary = summary,
-                Institutes = instituteRows
+                Institutes = instituteRows,
+                TotalCount = totalInstitutes,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
         }
 
@@ -151,11 +159,11 @@ namespace BioMatricAttendance.Services
         
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endTime);
 
-          
-            var institutes = await _regionRepo.GetInstitutesAsync(null, districtId);
 
-            if (instituteId.HasValue)
-                institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
+            var institutes = await _regionRepo.GetInstituteByDistrictId(instituteId, districtId);
+
+            //if (instituteId.HasValue)
+            //    institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
 
             var instituteIds = institutes.Select(i => i.Id).ToList();
             if (!instituteIds.Any())
