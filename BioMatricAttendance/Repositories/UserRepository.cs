@@ -17,10 +17,17 @@ namespace BioMatricAttendance.Repositories
         }
         public async Task<User> AddUser(User user)
         {
-            
+            try
+            {
                 await _appContext.AppUsers.AddAsync(user);
-               await _appContext.SaveChangesAsync();
+                await _appContext.SaveChangesAsync();
                 return user;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+               
+            }
         }
          public async Task<User> GetUserById(int id)
         {

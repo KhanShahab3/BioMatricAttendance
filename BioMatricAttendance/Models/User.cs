@@ -13,6 +13,7 @@ namespace BioMatricAttendance.Models
         public int RoleId { get; set; }
         public int? InstituteId { get; set; }
         public int? RegionId { get; set; }
+     
 
         public int? DistrictId { get; set; }
         //public int? HQ { get; set; }
@@ -22,3 +23,4 @@ namespace BioMatricAttendance.Models
         public ICollection<Candidate>? Candidates { get; set; }
     }
 }
+

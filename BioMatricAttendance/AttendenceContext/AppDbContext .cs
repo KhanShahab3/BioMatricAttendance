@@ -26,6 +26,10 @@ namespace BioMatricAttendance.AttendenceContext
         public DbSet<ShiftType> ShiftTypes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<User>()
+    .Property(u => u.Id)
+    .UseIdentityAlwaysColumn();
             modelBuilder.Entity<BiomatricDevice>()
                 .HasIndex(d => d.DeviceId)
                 .IsUnique();

@@ -45,7 +45,9 @@ namespace BioMatricAttendance.Services
             var studentsPresent = students.Count(s => presentCandidateIds.Contains(s.DeviceUserId));
 
             var activeDeviceIds = todayLogs.Select(t => t.DeviceId).Distinct().ToList();
-            var devicesActive = devices.Count(d => activeDeviceIds.Contains(d.DeviceId));
+            var devicesActive = devices
+              . Where(d=>d.isRegistered==true)
+                .Count(d => activeDeviceIds.Contains(d.DeviceId));
 
             var totalFaculty = faculty.Count;
             var totalStudents = students.Count;

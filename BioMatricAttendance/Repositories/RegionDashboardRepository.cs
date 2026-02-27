@@ -14,7 +14,7 @@ namespace BioMatricAttendance.Repositories
         }
 
 
-        public async Task<List<Institute>>GetInstituteByDistrictId(int? instituteId,int districtId)
+        public async Task<List<Institute>>GetInstituteByDistrictId(int? instituteId,int? districtId)
         {
            var result= _context.Institutes
                 .Where(i => i.DistrictId == districtId && !i.IsDeleted);

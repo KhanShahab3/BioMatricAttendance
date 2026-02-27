@@ -18,10 +18,9 @@ namespace BioMatricAttendance.Services
 
 
         public async Task<DistrictDashboardDto> GetDistrictDashboard(
-        int districtId,
-        int? instituteId,
-        int pageNumber=1,
-        int pageSize= 10
+        int? districtId,
+        int? instituteId
+       
 
 
 
@@ -33,7 +32,7 @@ namespace BioMatricAttendance.Services
 
             var institutes = await _regionRepo.GetInstituteByDistrictId(instituteId, districtId);
 
-            var totalInstitutes = institutes.Count;
+       
 
             //if (instituteId>0)
             //    institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
@@ -86,13 +85,10 @@ namespace BioMatricAttendance.Services
 
                 TotalCourses = await _regionRepo.GetCourseCountAsync(instituteIds)
             };
-            var pagedInstitutes = institutes
-    .Skip((pageNumber - 1) * pageSize)
-    .Take(pageSize)
-    .ToList();
+  
 
             var instituteRows = new List<InstituteComparisonDto>();
-            foreach (var institute in pagedInstitutes)
+            foreach (var institute in institutes)
             {
                 var instDeviceIds = devices
                     .Where(d => d.InstituteId == institute.Id)
@@ -142,16 +138,15 @@ namespace BioMatricAttendance.Services
             {
                 Summary = summary,
                 Institutes = instituteRows,
-                TotalCount = totalInstitutes,
-                PageNumber = pageNumber,
-                PageSize = pageSize
+                
+           
             };
         }
 
 
 
         public async Task<DistrictDashboardReportDto> GetDashboardReportDto(
-            int districtId,
+            int ?districtId,
             DateTime ?startDate,
             DateTime ?endTime,
             int? instituteId = null)
