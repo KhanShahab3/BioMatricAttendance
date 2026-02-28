@@ -38,6 +38,32 @@ namespace BioMatricAttendance.Repositories
             return institutes;
         }
 
+        public async Task<(List<Institute> Items, int TotalCount)> GetInstitutePaged(int page, int pageSize)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+            if (pageSize < 1)
+            {
+
+                pageSize = 20;
+            }
+            var query = _appContext.Institutes
+                .AsNoTracking()
+                .Include(i => i.Region)
+                .Include(i => i.BiomatricDevices)
+                .OrderBy(i => i.Id);
+            var totalCount=await query.CountAsync();
+            var items = await query.Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (items, totalCount);
+
+        }
+
+
+
         public async Task<List<Institute>> GetInstituteCourses()
         {
             var instituteCourses = await _appContext.Institutes
@@ -47,6 +73,7 @@ namespace BioMatricAttendance.Repositories
                 .ToListAsync();
             return instituteCourses;
         }
+
         public async Task<Institute> UpdateInstitute(Institute institute)
         {
             var isInstitute = await _appContext.Institutes.FindAsync(institute.Id);

@@ -21,7 +21,7 @@ namespace BioMatricAttendance.Controllers
         public async Task<IActionResult> GetAllInstitutes()
         {
             var institutes = await _instituteService.GetInstitutes();
-            if (institutes.Count == 0)
+            if (institutes==null)
             {
                 return NotFound(new APIResponse<object>
                 {

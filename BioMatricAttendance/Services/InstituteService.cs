@@ -102,7 +102,31 @@ namespace BioMatricAttendance.Services
             return instituteDto;
 
         }
-        
+        public async Task<PagedResult<GetInstituteDto>> GetInstitutesPaged(int page, int pageSize)
+        {
+            var (institutes, totalCount) = await _instituteRepository.GetInstitutePaged(page, pageSize);
+            var instituteDtos = institutes.Select(institute => new GetInstituteDto
+            {
+                Id = institute.Id,
+                InstituteName = institute.InstituteName,
+                Address = institute.Address,
+                ContactNumber = institute.ContactNumber,
+                Email = institute.Email,
+                ContactPerson = institute.ContactPerson,
+                CreatedAt = institute.CreatedAt,
+                Region = new GetRegionNameDto
+                {
+                    Id=institute.Region.Id,
+                    RegionName = institute.Region.RegionName
+                },
+                DeviceCount = institute.BiomatricDevices?.Count() ?? 0
+            }).ToList();
+            return new PagedResult<GetInstituteDto>
+            {
+                Items = instituteDtos,
+                TotalCount = totalCount
+            };
+        }
         public async Task<List<GetInstituteDto>> GetInstitutes()
         { 
             var institutes= await _instituteRepository.GetAllInstitutes();

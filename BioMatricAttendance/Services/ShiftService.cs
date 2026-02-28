@@ -4,6 +4,7 @@ using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace BioMatricAttendance.Services
@@ -19,60 +20,64 @@ namespace BioMatricAttendance.Services
             _shift = shift;
         }
 
-        public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
-            int? instituteId,
-            int? regionId
-            )
+      
+public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
+    int? instituteId,
+    int? regionId
+    )
         {
          
-            var deviceIdsQuery = _appDbContext.Institutes
+            var instituteQuery = _appDbContext.Institutes
                 .Where(i => !i.IsDeleted);
 
-            if ( instituteId > 0)
-                deviceIdsQuery = deviceIdsQuery.Where(i => i.Id == instituteId);
+            if (instituteId.HasValue && instituteId.Value > 0)
+                instituteQuery = instituteQuery.Where(i => i.Id == instituteId.Value);
 
-            if ( regionId > 0)
-                deviceIdsQuery = deviceIdsQuery.Where(i => i.RegionId == regionId);
+            if (regionId.HasValue && regionId.Value > 0)
+                instituteQuery = instituteQuery.Where(i => i.RegionId == regionId.Value);
 
-            var deviceIds = await deviceIdsQuery
-                .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
+        
+            var deviceIds = await instituteQuery
+                .SelectMany(i => i.BiomatricDevices
+                    .Where(d => d.isRegistered)
+                    .Select(d => d.DeviceId))
+                .Distinct()
                 .ToListAsync();
 
             if (!deviceIds.Any())
                 return new List<CandidateWithShiftDto>();
 
-           
+      
             var candidates = await _appDbContext.Candidates
                 .Where(c => c.Enable && deviceIds.Contains(c.DeviceId))
                 .ToListAsync();
 
+            if (!candidates.Any())
+                return new List<CandidateWithShiftDto>();
+
+            var candidateIds = candidates.Select(c => c.Id).ToList();
+
            
-            var candidateShiftsQuery = _appDbContext.CandidateShifts
+            var candidateShifts = await _appDbContext.CandidateShifts
                 .Include(cs => cs.Shift)
-                .Where(cs => deviceIds.Contains(cs.Candidate.DeviceId));
+                .Where(cs => candidateIds.Contains(cs.CandidateId))
+                .ToListAsync();
 
-            //if (shiftId > 0)
-            //{
-            //    candidateShiftsQuery = candidateShiftsQuery.Where(cs => cs.ShiftId == shiftId); 
-            //    var candidateIdsWithShift = candidateShiftsQuery.Select(cs => cs.CandidateId).ToHashSet();
-            //    candidates = candidates.Where(c => candidateIdsWithShift.Contains(c.Id)).ToList();
-            //}
+            var latestShiftByCandidate = candidateShifts
+                .GroupBy(cs => cs.CandidateId)
+                .Select(g => g.OrderByDescending(cs => cs.CreatedAt).First())
+                .ToDictionary(cs => cs.CandidateId);
 
-
+          
             var result = candidates.Select(c =>
             {
-                var assignedShift = candidateShiftsQuery
-       .FirstOrDefault(cs => cs.CandidateId == c.Id
-                             );
-
-                var shiftName = assignedShift?.Shift?.ShiftName;
-
+                latestShiftByCandidate.TryGetValue(c.Id, out var assignedShift);
                 return new CandidateWithShiftDto
                 {
                     CandidateId = c.Id,
                     Name = c.Name,
                     ShiftId = assignedShift?.ShiftId,
-                    ShiftName = shiftName,
+                    ShiftName = assignedShift?.Shift?.ShiftName,
                     IsAssigned = assignedShift != null
                 };
             }).ToList();

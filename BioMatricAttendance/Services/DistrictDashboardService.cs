@@ -3,6 +3,8 @@ using BioMatricAttendance.Helper;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 
+
+
 namespace BioMatricAttendance.Services
 {
     public class DistrictDashboardService : IDistrictDashboardServicecs
@@ -20,19 +22,11 @@ namespace BioMatricAttendance.Services
         public async Task<DistrictDashboardDto> GetDistrictDashboard(
         int? districtId,
         int? instituteId
-       
-
-
-
-
             )
         {
             var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(null, null);
 
-
             var institutes = await _regionRepo.GetInstituteByDistrictId(instituteId, districtId);
-
-       
 
             //if (instituteId>0)
             //    institutes = institutes.Where(i => i.Id == instituteId.Value).ToList();
@@ -44,7 +38,6 @@ namespace BioMatricAttendance.Services
             var devices = await _regionRepo.GetDevicesAsync(instituteIds);
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
 
-
             var candidates = await _repo.GetCandidatesByDeviceIds(deviceIds);
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
@@ -52,10 +45,9 @@ namespace BioMatricAttendance.Services
             var logs = await _repo.GetTimeLogs(deviceIds, startUtc, endUtc);
             var presentIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToList();
 
-
             double dutyHours = 8;
             var facultyLogs = logs.Where(l => faculty.Any(f => f.DeviceUserId == l.DeviceUserId)).ToList();
-  
+
             var summary = new DistrictDashboardSummaryDto
             {
                 TotalInstitutes = institutes.Count,
@@ -65,8 +57,6 @@ namespace BioMatricAttendance.Services
                     faculty.Any()
                         ? Math.Round((decimal)faculty.Count(f => presentIds.Contains(f.DeviceUserId)) / faculty.Count * 100, 1)
                         : 0,
-
-
 
                 TotalStudents = students.Count,
                 StudentsPresent = students.Count(s => presentIds.Contains(s.DeviceUserId)),
@@ -85,7 +75,6 @@ namespace BioMatricAttendance.Services
 
                 TotalCourses = await _regionRepo.GetCourseCountAsync(instituteIds)
             };
-  
 
             var instituteRows = new List<InstituteComparisonDto>();
             foreach (var institute in institutes)
@@ -100,9 +89,10 @@ namespace BioMatricAttendance.Services
                 var instStudents = instCandidates.Where(c => c.Previliges == "NormalUser").ToList();
                 var instLogs = logs.Where(l => instDeviceIds.Contains(l.DeviceId)).ToList();
 
+                // compute institute-specific present ids (prevents cross-institute leakage)
+                var instPresentIds = instLogs.Select(l => (int)l.DeviceUserId).Distinct().ToList();
 
                 var instFacultyLogs = instLogs.Where(l => instFaculty.Any(f => f.DeviceUserId == l.DeviceUserId)).ToList();
-
 
                 instituteRows.Add(new InstituteComparisonDto
                 {
@@ -110,17 +100,17 @@ namespace BioMatricAttendance.Services
                     DistrictName = institute.District?.DistrictName ?? "",
 
                     TotalFaculty = instFaculty.Count,
-                    FacultyPresent = instFaculty.Count(f => presentIds.Contains(f.DeviceUserId)),
+                    FacultyPresent = instFaculty.Count(f => instPresentIds.Contains(f.DeviceUserId)),
                     FacultyAttendancePercentage =
                         instFaculty.Any()
-                            ? Math.Round((decimal)instFaculty.Count(f => presentIds.Contains(f.DeviceUserId)) / instFaculty.Count * 100, 1)
+                            ? Math.Round((decimal)instFaculty.Count(f => instPresentIds.Contains(f.DeviceUserId)) / instFaculty.Count * 100, 1)
                             : 0,
 
                     TotalStudents = instStudents.Count,
-                    StudentsPresent = instStudents.Count(s => presentIds.Contains(s.DeviceUserId)),
+                    StudentsPresent = instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)),
                     StudentAttendancePercentage =
                         instStudents.Any()
-                            ? Math.Round((decimal)instStudents.Count(s => presentIds.Contains(s.DeviceUserId)) / instStudents.Count * 100, 1)
+                            ? Math.Round((decimal)instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)) / instStudents.Count * 100, 1)
                             : 0,
 
                     TotalDevices = instDeviceIds.Count,
@@ -128,9 +118,6 @@ namespace BioMatricAttendance.Services
 
                     MaleCount = instCandidates.Count(c => c.gender == Gender.Male),
                     FemaleCount = instCandidates.Count(c => c.gender == Gender.Female),
-
-
-
                 });
             }
 
@@ -138,22 +125,17 @@ namespace BioMatricAttendance.Services
             {
                 Summary = summary,
                 Institutes = instituteRows,
-                
-           
             };
         }
 
-
-
         public async Task<DistrictDashboardReportDto> GetDashboardReportDto(
-            int ?districtId,
-            DateTime ?startDate,
-            DateTime ?endTime,
+            int? districtId,
+            DateTime? startDate,
+            DateTime? endTime,
             int? instituteId = null)
         {
-        
-            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endTime);
 
+            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endTime);
 
             var institutes = await _regionRepo.GetInstituteByDistrictId(instituteId, districtId);
 
@@ -164,7 +146,6 @@ namespace BioMatricAttendance.Services
             if (!instituteIds.Any())
                 return new DistrictDashboardReportDto();
 
-          
             var devices = await _regionRepo.GetDevicesAsync(instituteIds);
             var deviceIds = devices.Select(d => d.DeviceId).ToList();
 
@@ -172,7 +153,6 @@ namespace BioMatricAttendance.Services
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
 
-       
             var logs = await _repo.GetTimeLogs(deviceIds, startUtc, endUtc);
             var presentIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToList();
 
@@ -192,7 +172,6 @@ namespace BioMatricAttendance.Services
                     : 0
             };
 
-         
             var facultyReports = new List<DistrictFaculityAttendanceDto>();
             var studentReports = new List<DistrictStudentAttendanceDto>();
 
@@ -230,9 +209,10 @@ namespace BioMatricAttendance.Services
                     TotalStudents = instStudents.Count,
                     Present = instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)),
                     //StudentsAbsent = instStudents.Count - instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)),
-                   AttendancePercentage = instStudents.Any()
+                    AttendancePercentage = instStudents.Any()
                         ? Math.Round((decimal)instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)) / instStudents.Count * 100, 1)
                         : 0
+
                 });
             }
 
@@ -243,6 +223,3 @@ namespace BioMatricAttendance.Services
         }
     }
 }
-    
-    
-    
