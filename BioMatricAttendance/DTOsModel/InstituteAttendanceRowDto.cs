@@ -2,6 +2,7 @@
 {
     public class InstituteAttendanceRowDto
     {
+        public int InstituteId { get; set; }
         public string InstituteName { get; set; }
         public string Region { get; set; }
         public int Total { get; set; }

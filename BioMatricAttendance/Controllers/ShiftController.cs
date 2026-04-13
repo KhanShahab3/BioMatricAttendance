@@ -68,12 +68,13 @@ namespace BioMatricAttendance.Controllers
             return Ok(new { Message = "Shift type deleted successfully" });
         }
         [HttpGet("getCandidateShift")]
-        public async Task<IActionResult> GetShiftCandidate([FromQuery] int? instituteId,
+        public async Task<IActionResult> GetShiftCandidate(
+        [FromQuery] int? instituteId,
         [FromQuery] int? regionId
        )
         {
             var candidates = await _shiftService.GetCandidatesWithShift(instituteId, regionId);
-            if (candidates == null)
+            if (candidates.Count==0)
             {
                 return NotFound("No candiates found");
             }

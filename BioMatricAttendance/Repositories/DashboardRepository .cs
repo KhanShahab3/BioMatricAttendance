@@ -30,11 +30,19 @@ namespace BioMatricAttendance.Repositories
             }
             return institutes;
         }
-        public async Task<List<BiomatricDevice>>GetDevices(List<int> instituteIds)
+        public async Task<List<BiomatricDevice>> GetDevices(List<int>? instituteIds)
         {
+            if (instituteIds == null || !instituteIds.Any())
+                return new List<BiomatricDevice>();
+
             var devices = await _context.BiomatricDevices
-                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted && d.isRegistered)
+                .Where(d => d.InstituteId.HasValue
+                            && instituteIds.Contains(d.InstituteId.Value)
+                            && !d.IsDeleted
+                            && d.isRegistered)
+                .AsNoTracking()
                 .ToListAsync();
+
             return devices;
         }
 

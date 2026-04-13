@@ -45,7 +45,7 @@ namespace BioMatricAttendance.Repositories
         public async Task<List<BiomatricDevice>> GetDevicesAsync(List<int> instituteIds)
         {
             return await _context.BiomatricDevices
-                .Where(d => instituteIds.Contains(d.InstituteId) && !d.IsDeleted && d.isRegistered)
+                .Where(d => d.InstituteId.HasValue && instituteIds.Contains(d.InstituteId.Value) && !d.IsDeleted && d.isRegistered)
                 .AsNoTracking()
                 .ToListAsync();
         }

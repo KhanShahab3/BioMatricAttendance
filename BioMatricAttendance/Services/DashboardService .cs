@@ -143,6 +143,7 @@ namespace BioMatricAttendance.Services
 
                 facultyReport.Add(new InstituteAttendanceRowDto
                 {
+                    InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
                     Region = institute.Region?.RegionName ?? "",
                     Total = totalFaculty,
@@ -173,6 +174,7 @@ namespace BioMatricAttendance.Services
 
                 studentReport.Add(new InstituteAttendanceRowDto
                 {
+                        InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
                     Region = institute.Region?.RegionName ?? "",
                     Total = totalStudents,
@@ -203,8 +205,8 @@ namespace BioMatricAttendance.Services
                 StudentAttendancePercentage = totalStudentsCount > 0
          ? Math.Round((decimal)studentsPresentCount / totalStudentsCount * 100, 1)
          : 0,
-                //StartDate = startPk,
-                //EndDate = endPk
+                StartDate = startDate,
+                EndDate = endDate
             };
 
             return new AttendanceDetailedReportDto

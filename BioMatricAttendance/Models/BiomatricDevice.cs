@@ -10,7 +10,7 @@ namespace BioMatricAttendance.Models
         public DateTime UpdatedAt { get; set; }
       public string SessionId {  get; set; }
         public bool IsDeleted { get; set; } = false;
-        public int InstituteId { get; set; }
+        public int ?InstituteId { get; set; }
 
         public bool isRegistered { get; set; } = false; 
         public Institute Institute { get; set; }

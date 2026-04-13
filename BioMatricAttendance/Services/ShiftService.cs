@@ -20,70 +20,51 @@ namespace BioMatricAttendance.Services
             _shift = shift;
         }
 
-      
-public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
-    int? instituteId,
-    int? regionId
-    )
+
+        public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(int? instituteId, int? regionId)
         {
-         
-            var instituteQuery = _appDbContext.Institutes
-                .Where(i => !i.IsDeleted);
-
-            if (instituteId.HasValue && instituteId.Value > 0)
-                instituteQuery = instituteQuery.Where(i => i.Id == instituteId.Value);
-
-            if (regionId.HasValue && regionId.Value > 0)
-                instituteQuery = instituteQuery.Where(i => i.RegionId == regionId.Value);
-
-        
-            var deviceIds = await instituteQuery
-                .SelectMany(i => i.BiomatricDevices
-                    .Where(d => d.isRegistered)
-                    .Select(d => d.DeviceId))
+          
+            var deviceIds = await _appDbContext.Institutes
+                .Where(i => !i.IsDeleted &&
+                           (!instituteId.HasValue || i.Id == instituteId) &&
+                           (!regionId.HasValue || i.RegionId == regionId))
+                .SelectMany(i => i.BiomatricDevices.Where(d => d.isRegistered).Select(d => d.DeviceId))
                 .Distinct()
                 .ToListAsync();
 
-            if (!deviceIds.Any())
-                return new List<CandidateWithShiftDto>();
+            if (!deviceIds.Any()) return new List<CandidateWithShiftDto>();
 
-      
-            var candidates = await _appDbContext.Candidates
+            
+            var result = await _appDbContext.Candidates
                 .Where(c => c.Enable && deviceIds.Contains(c.DeviceId))
-                .ToListAsync();
-
-            if (!candidates.Any())
-                return new List<CandidateWithShiftDto>();
-
-            var candidateIds = candidates.Select(c => c.Id).ToList();
-
-           
-            var candidateShifts = await _appDbContext.CandidateShifts
-                .Include(cs => cs.Shift)
-                .Where(cs => candidateIds.Contains(cs.CandidateId))
-                .ToListAsync();
-
-            var latestShiftByCandidate = candidateShifts
-                .GroupBy(cs => cs.CandidateId)
-                .Select(g => g.OrderByDescending(cs => cs.CreatedAt).First())
-                .ToDictionary(cs => cs.CandidateId);
-
-          
-            var result = candidates.Select(c =>
-            {
-                latestShiftByCandidate.TryGetValue(c.Id, out var assignedShift);
-                return new CandidateWithShiftDto
+                .Select(c => new CandidateWithShiftDto
                 {
                     CandidateId = c.Id,
                     Name = c.Name,
-                    ShiftId = assignedShift?.ShiftId,
-                    ShiftName = assignedShift?.Shift?.ShiftName,
-                    IsAssigned = assignedShift != null
-                };
-            }).ToList();
+                    ShiftId = _appDbContext.CandidateShifts
+                        .Where(cs => cs.CandidateId == c.Id)
+                        .OrderByDescending(cs => cs.CreatedAt)
+                        .Select(cs => (int?)cs.ShiftId)
+                        .FirstOrDefault(),
+
+                   
+                    ShiftName = _appDbContext.CandidateShifts
+                        .Where(cs => cs.CandidateId == c.Id)
+                        .OrderByDescending(cs => cs.CreatedAt)
+                        .Select(cs => cs.Shift.ShiftName) 
+                        .FirstOrDefault(),
+
+                    IsAssigned = _appDbContext.CandidateShifts.Any(cs => cs.CandidateId == c.Id)
+                })
+                .ToListAsync();
 
             return result;
         }
+
+
+
+
+
 
 
 
@@ -130,7 +111,7 @@ public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
                 .ToListAsync();
 
 
-            if (existingShifts==null)
+            if (existingShifts.Any())
             {
                 return new APIResponse<string>
                 {
@@ -227,32 +208,34 @@ public async Task<List<CandidateWithShiftDto>> GetCandidatesWithShift(
 
         public async Task<APIResponse<string>> RemoveShiftAsync(int candidateId)
         {
-            var shiftToRemove = await _appDbContext.CandidateShifts
-      .FirstOrDefaultAsync(cs => cs.CandidateId == candidateId);
+           
+            var shiftsToRemove = await _appDbContext.CandidateShifts
+                .Where(cs => cs.CandidateId == candidateId)
+                .ToListAsync();
 
-            if (shiftToRemove != null)
+            if (shiftsToRemove.Any())
             {
-                _appDbContext.CandidateShifts.Remove(shiftToRemove);
+                
+                _appDbContext.CandidateShifts.RemoveRange(shiftsToRemove);
                 await _appDbContext.SaveChangesAsync();
 
                 return new APIResponse<string>
                 {
                     Sucess = true,
-                    Message = $"Candidate {candidateId} removed",
-                    StatusCode = 200,
-                    Data = null
+                    Message = $"Candidate {candidateId} shifts removed successfully",
+                    StatusCode = 200
                 };
             }
 
+           
             return new APIResponse<string>
             {
-                Sucess = true,
-                Message = $"Candidate not found",
-                StatusCode = 200,
-                Data = null
+                Sucess = false,
+                Message = $"No assigned shift found for candidate {candidateId}",
+                StatusCode = 404 
             };
-
         }
+
 
 
 

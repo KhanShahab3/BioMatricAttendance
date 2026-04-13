@@ -97,7 +97,13 @@ namespace BioMatricAttendance.Services
                 {
                     RegionName = OneInstiute.Region.RegionName
                 },
-                DeviceCount = OneInstiute.BiomatricDevices?.Count() ?? 0
+                DeviceCount = OneInstiute.BiomatricDevices?.Count() ?? 0,
+                    Devices = OneInstiute.BiomatricDevices?.Select(d => new GetDeviceNameDto
+                    {
+                        Id = d.Id,
+                        DeviceId = d.DeviceId,
+
+                    }).ToList() ?? new List<GetDeviceNameDto>()
             };
             return instituteDto;
 
@@ -144,7 +150,16 @@ namespace BioMatricAttendance.Services
                     Id=institute.Region.Id,
                     RegionName = institute.Region.RegionName
                 },
-                DeviceCount = institute.BiomatricDevices?.Count() ?? 0
+              
+                DeviceCount = institute.BiomatricDevices?.Count() ?? 0,
+                    Devices = institute.BiomatricDevices?.Select(d => new GetDeviceNameDto
+                    {
+                        Id = d.Id,
+                        DeviceId = d.DeviceId,
+    
+                    }).ToList() ?? new List<GetDeviceNameDto>()
+
+
             }).ToList();
             return instituteDtos;
 
@@ -165,21 +180,76 @@ namespace BioMatricAttendance.Services
             }).ToList();
             return instDto;
         }
-        public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute)
+    
+public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institute)
         {
-            var UpdateInstitute=new Institute
+            if (institute == null) throw new ArgumentNullException(nameof(institute));
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                Id = institute.Id,
-                InstituteName = institute.InstituteName,
-                Address = institute.Address,
-                ContactNumber = institute.ContactNumber,
-                Email = institute.Email,
-                ContactPerson = institute.ContactPerson,
-                RegionId = institute.RegionId,
-                UpdatedAt = institute.UpdatedAt
-            };
-            await _instituteRepository.UpdateInstitute(UpdateInstitute);
-            return institute;
+                var updateEntity = new Institute
+                {
+                    Id = institute.Id,
+                    InstituteName = institute.InstituteName,
+                    Address = institute.Address,
+                    ContactNumber = institute.ContactNumber,
+                    Email = institute.Email,
+                    ContactPerson = institute.ContactPerson,
+                    RegionId = institute.RegionId,
+                    UpdatedAt = institute.UpdatedAt
+                };
+
+                // update institute fields (repository saves changes)
+                await _instituteRepository.UpdateInstitute(updateEntity);
+
+                // If frontend provided DeviceIds (could be empty list to unassign all), handle assignment/unassignment
+                if (institute.DeviceIds != null)
+                {
+                    var selectedDeviceIds = institute.DeviceIds;
+
+                    // load devices referenced by selection (and not deleted)
+                    var devicesToAssign = await _context.BiomatricDevices
+                        .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
+                        .ToListAsync();
+
+                    if (devicesToAssign.Count != selectedDeviceIds.Count)
+                        throw new InvalidOperationException("One or more devices not found.");
+
+                    // Prevent assigning devices that belong to another institute
+                    var alreadyAssignedElsewhere = devicesToAssign
+                        .Where(d => d.InstituteId.HasValue && d.InstituteId.Value != institute.Id)
+                        .ToList();
+
+                    if (alreadyAssignedElsewhere.Any())
+                        throw new InvalidOperationException("One or more devices already assigned to another institute.");
+
+                    // Unassign devices currently linked to this institute but not selected now
+                    var currentlyAssigned = await _context.BiomatricDevices
+                        .Where(d => d.InstituteId == institute.Id)
+                        .ToListAsync();
+
+                    foreach (var d in currentlyAssigned)
+                    {
+                        if (!selectedDeviceIds.Contains(d.Id))
+                            d.InstituteId = null;
+                    }
+
+                    // Assign selected devices to this institute
+                    foreach (var d in devicesToAssign)
+                        d.InstituteId = institute.Id;
+
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+                return institute;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         public async Task<bool> RemoveInstitute(int id)
         {

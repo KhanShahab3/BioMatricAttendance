@@ -6,6 +6,7 @@ namespace BioMatricAttendance.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public string ShiftName { get; set; }   
         public TimeSpan StartTime {  get; set; }
         public TimeSpan EndTime { get; set; }
