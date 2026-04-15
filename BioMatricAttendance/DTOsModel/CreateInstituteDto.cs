@@ -8,6 +8,7 @@
         public string ContactNumber { get; set; }
         public string Email { get; set; }
         public string ContactPerson { get; set; }
+        public int DistrictId { get; set; }
         public int RegionId { get; set; }
         public List<int> DeviceIds { get; set; }
         public DateTime CreatedAt { get; set; }=DateTime.Now;

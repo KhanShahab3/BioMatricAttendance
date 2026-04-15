@@ -32,6 +32,7 @@ namespace BioMatricAttendance.Services
                     InstituteName = dto.InstituteName,
                     Address = dto.Address,
                     ContactNumber = dto.ContactNumber,
+                    DistrictId=dto.DistrictId,
                     Email = dto.Email,
                     ContactPerson = dto.ContactPerson,
                     RegionId = dto.RegionId,
@@ -48,8 +49,8 @@ namespace BioMatricAttendance.Services
                 var devices = await _context.BiomatricDevices
                     .Where(d => dto.DeviceIds.Contains(d.Id))
                     .ToListAsync();
-                if (devices.Count != dto.DeviceIds.Count)
-                    throw new Exception("One or more devices not found");
+                //if (devices.Count != dto.DeviceIds.Count)
+                //    throw new Exception("One or more devices not found");
 
                 if (devices.Any(d => d.InstituteId != null))
                     throw new Exception("Device already assigned to another institute");
@@ -195,28 +196,29 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
                     Address = institute.Address,
                     ContactNumber = institute.ContactNumber,
                     Email = institute.Email,
+                    DistrictId = institute.DistrictId,
                     ContactPerson = institute.ContactPerson,
                     RegionId = institute.RegionId,
                     UpdatedAt = institute.UpdatedAt
                 };
 
-                // update institute fields (repository saves changes)
+                
                 await _instituteRepository.UpdateInstitute(updateEntity);
 
-                // If frontend provided DeviceIds (could be empty list to unassign all), handle assignment/unassignment
+              
                 if (institute.DeviceIds != null)
                 {
                     var selectedDeviceIds = institute.DeviceIds;
 
-                    // load devices referenced by selection (and not deleted)
+                 
                     var devicesToAssign = await _context.BiomatricDevices
                         .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
                         .ToListAsync();
 
-                    if (devicesToAssign.Count != selectedDeviceIds.Count)
-                        throw new InvalidOperationException("One or more devices not found.");
+                    //if (devicesToAssign.Count != selectedDeviceIds.Count)
+                    //    throw new InvalidOperationException("One or more devices not found.");
 
-                    // Prevent assigning devices that belong to another institute
+                   
                     var alreadyAssignedElsewhere = devicesToAssign
                         .Where(d => d.InstituteId.HasValue && d.InstituteId.Value != institute.Id)
                         .ToList();
@@ -224,7 +226,7 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
                     if (alreadyAssignedElsewhere.Any())
                         throw new InvalidOperationException("One or more devices already assigned to another institute.");
 
-                    // Unassign devices currently linked to this institute but not selected now
+                  
                     var currentlyAssigned = await _context.BiomatricDevices
                         .Where(d => d.InstituteId == institute.Id)
                         .ToListAsync();
