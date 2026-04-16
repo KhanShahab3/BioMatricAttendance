@@ -191,7 +191,7 @@ namespace BioMatricAttendance.Controllers
         }
 
         [HttpGet("GetPresentStudentInstituteWise")]
-        public async Task<IActionResult> GetPresentStudentInstituteWise(int instituteId,[FromQuery]DateTime startDate,[FromQuery]DateTime endDate)
+        public async Task<IActionResult> GetPresentStudentInstituteWise(int instituteId,[FromQuery]DateTime? startDate,[FromQuery]DateTime? endDate)
         {
             var inst = await _instituteService.GetPresentStudentByInstitute(instituteId, startDate, endDate);
             if (inst == null)
@@ -207,7 +207,7 @@ namespace BioMatricAttendance.Controllers
 
         }
         [HttpGet("GetPresentFaculityInstituteWise")]
-        public async Task<IActionResult> GetPresentFaculityInstituteWise(int instituteId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetPresentFaculityInstituteWise(int instituteId,[FromQuery] DateTime? startDate,[FromQuery] DateTime ?endDate)
         {
             var inst = await _instituteService.GetPresentFaculityByInstitute(instituteId, startDate, endDate);
             if (inst == null)

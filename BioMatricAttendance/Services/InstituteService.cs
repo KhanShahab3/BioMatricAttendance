@@ -20,19 +20,17 @@ namespace BioMatricAttendance.Services
         }
         public async Task<int> CreateInstitute(CreateInstituteDto dto)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            if (dto == null) throw new ArgumentNullException(nameof(dto));
 
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-
-                
-
                 var institute = new Institute
                 {
                     InstituteName = dto.InstituteName,
                     Address = dto.Address,
                     ContactNumber = dto.ContactNumber,
-                    DistrictId=dto.DistrictId,
+                    DistrictId = dto.DistrictId,
                     Email = dto.Email,
                     ContactPerson = dto.ContactPerson,
                     RegionId = dto.RegionId,
@@ -42,31 +40,33 @@ namespace BioMatricAttendance.Services
                 _instituteRepository.AddInstitute(institute);
                 await _context.SaveChangesAsync();
 
-                int instituteId = institute.Id;
+                var instituteId = institute.Id;
 
-
-                // can create function and pass institute Id and list of device ids and call repository here.
-                var devices = await _context.BiomatricDevices
-                    .Where(d => dto.DeviceIds.Contains(d.Id))
-                    .ToListAsync();
-                //if (devices.Count != dto.DeviceIds.Count)
-                //    throw new Exception("One or more devices not found");
-
-                if (devices.Any(d => d.InstituteId != null))
-                    throw new Exception("Device already assigned to another institute");
-
-
-                foreach (var device in devices)
+              
+                if (dto.DeviceIds != null && dto.DeviceIds.Any())
                 {
-                    device.InstituteId = instituteId;
+                    var selectedDeviceIds = dto.DeviceIds.Distinct().ToList();
+
+                    var devices = await _context.BiomatricDevices
+                        .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
+                        .ToListAsync();
+
+                    if (devices.Count != selectedDeviceIds.Count)
+                        throw new InvalidOperationException("One or more selected devices were not found.");
+
+                    // Prevent assigning devices already assigned to another institute
+                    var alreadyAssigned = devices.Where(d => d.InstituteId.HasValue).ToList();
+                    if (alreadyAssigned.Any())
+                        throw new InvalidOperationException("One or more selected devices are already assigned to an institute.");
+
+                    foreach (var device in devices)
+                        device.InstituteId = instituteId;
+
+                    await _context.SaveChangesAsync();
                 }
 
-
-                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
                 return instituteId;
-
             }
             catch
             {
@@ -237,7 +237,7 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
                             d.InstituteId = null;
                     }
 
-                    // Assign selected devices to this institute
+                  
                     foreach (var d in devicesToAssign)
                         d.InstituteId = institute.Id;
 
@@ -270,11 +270,11 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
         {
             return await _instituteRepository.GetInstituteWiseFaculty(InstituteId);
         }
-       public async Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
+       public async Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime? StartDate, DateTime? EndDate)
         {
             return await _instituteRepository.GetPresentStudentByInstitute(InstituteId,StartDate,EndDate);
         }
-        public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime StartDate, DateTime EndDate)
+        public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime? StartDate, DateTime ?EndDate)
         {
             return await _instituteRepository.GetPresentFaculityByInstitute(InstituteId, StartDate, EndDate );
         }
