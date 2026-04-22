@@ -9,6 +9,7 @@
         public string StudentName {  get; set; }
         public string FirstPunch { get; set; }
         public string LastPunch { get; set; }
+        public int CandidateId { get; set; }
 
     }
     public class InstitutePresentFaculityResponse
@@ -20,6 +21,7 @@
         public string FaculityName { get; set; }
         public string FirstPunch { get; set; }
         public string LastPunch { get; set; }
+        public int CandidateId { get; set; }
 
     }
 }

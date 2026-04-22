@@ -15,7 +15,8 @@ namespace BioMatricAttendance.Services
             _dashboardRepository = dashboardRepository;
             _context = context;
         }
-        public async Task<SuperAdminDashboardDto> GetSuperAdminDashboardAsync(int regionId)
+        public async Task<SuperAdminDashboardDto> GetSuperAdminDashboardAsync(int regionId, DateTime? startDate,
+      DateTime? endDate)
 
 
         {
@@ -34,8 +35,16 @@ namespace BioMatricAttendance.Services
 
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
-
-            var todayLogs= await _dashboardRepository.GetTodayLogs(devicesIds);
+            List<TimeLogs> todayLogs;
+            if (startDate == null && endDate == null)
+            {
+                todayLogs = await _dashboardRepository.GetTodayLogs(devicesIds);
+            }
+            else
+            {
+                todayLogs = await _dashboardRepository.GetLogs(devicesIds, startDate, endDate);
+            }
+            //var todayLogs= await _dashboardRepository.GetTodayLogs(devicesIds,startDate,endDate);
             var presentCandidateIds = todayLogs
             .Select(t => (int)t.DeviceUserId)
             .Distinct()
@@ -74,6 +83,7 @@ namespace BioMatricAttendance.Services
 
                 instituteRows.Add(new InstituteDashboardRowDto
                 {
+                    InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
                     RegionName = institute.Region?.RegionName ?? "",
                     FacultyPresent = instituteFaculty.Count(f => institutePresentIds.Contains(f.DeviceUserId)),

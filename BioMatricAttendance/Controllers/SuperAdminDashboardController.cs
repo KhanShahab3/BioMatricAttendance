@@ -8,7 +8,7 @@ namespace BioMatricAttendance.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = "super_admin")]
+    [Authorize(Roles = "super_admin")]
     public class SuperAdminDashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
@@ -18,13 +18,13 @@ namespace BioMatricAttendance.Controllers
             _dashboardService = dashboardService;
         }
         [HttpGet("GetSuperAdminDashboard")]
-        public async Task<IActionResult> GetSuperAdminDashboard([FromQuery] int regionId)
+        public async Task<IActionResult> GetSuperAdminDashboard([FromQuery] int regionId,[FromQuery]DateTime? startDate,[FromQuery]DateTime? endDate)
         {
 
 
             //var selectedDate = date??DateTime.UtcNow.Date;
             
-            var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId);
+            var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId,  startDate,  endDate);
             return Ok(new APIResponse<object>
             {
                 Sucess = true,

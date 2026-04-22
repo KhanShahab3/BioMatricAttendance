@@ -18,6 +18,12 @@ namespace BioMatricAttendance.Services
         Task<List<InstitutePresentStudentResponse>> GetPresentStudentByInstitute(int InstituteId, DateTime? StartDate, DateTime? EndDate);
         Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime? StartDate, DateTime? EndDate);
         Task<PagedResult<GetInstituteDto>> GetInstitutesPaged(int page, int pageSize);
-
+        //Task<List<CandidateAttendanceHistoryDto>> GetInstituteAttendanceReport(int InstituteId, DateTime? StartDate, DateTime? EndDate);
+        Task<CandidateAttendanceHistoryDto?> GetCandidateAttendanceHistoryAsync(
+    int instituteId,
+    int candidateId,
+    DateTime? startDatePk,
+    DateTime? endDatePk
+    );
     }
 }

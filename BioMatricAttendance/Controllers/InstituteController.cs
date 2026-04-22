@@ -4,6 +4,7 @@ using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace BioMatricAttendance.Controllers
 {
@@ -222,5 +223,27 @@ namespace BioMatricAttendance.Controllers
             return Ok(inst);
 
         }
+
+
+
+       
+   [HttpGet("institute/{instituteId}/candidate/{candidateId}/history")]
+public async Task<IActionResult> GetCandidateHistory(
+    int instituteId,
+    int candidateId,
+    [FromQuery] DateTime? startDate = null,
+    [FromQuery] DateTime? endDate = null
+    )
+        {
+            
+
+
+            var dto = await _instituteService.GetCandidateAttendanceHistoryAsync(instituteId, candidateId, startDate, endDate);
+            if (dto == null) return NotFound();
+            return Ok(dto);
+        }
     }
+
+
+
 }

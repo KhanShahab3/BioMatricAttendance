@@ -14,9 +14,10 @@
         public int StudentsPresent { get; set; }
         public int TotalStudents { get; set; }
         public decimal StudentAttendancePercentage { get; set; }
-
+        
         public int ActiveDevices { get; set; }
         public int TotalDevices { get; set; }
+        public int InactiveDevices { get; set; }    
 
         public int MaleCount { get; set; }
         public int FemaleCount { get; set; }

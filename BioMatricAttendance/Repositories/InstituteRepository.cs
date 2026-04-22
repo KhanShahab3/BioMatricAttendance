@@ -173,7 +173,7 @@ namespace BioMatricAttendance.Repositories
            
             var candidates = await _appContext.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable && c.Previliges.ToLower() == "normaluser")
-                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name })
+                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name ,c.Id})
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -208,6 +208,7 @@ namespace BioMatricAttendance.Repositories
                         DeviceUserId = g.Key.DeviceUserId,
                         DeviceId = g.Key.DeviceId,
                         StudentName = candidate.Name,
+                        CandidateId=candidate.Id,
                         FirstPunch = first.ToString("HH:mm:ss"),
                         LastPunch = last.ToString("HH:mm:ss")
                     };
@@ -232,7 +233,7 @@ namespace BioMatricAttendance.Repositories
 
             var candidates = await _appContext.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable && c.Previliges.ToLower() == "manager")
-                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name })
+                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name,c.Id })
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -266,6 +267,7 @@ namespace BioMatricAttendance.Repositories
                         DeviceUserId = g.Key.DeviceUserId,
                         DeviceId = g.Key.DeviceId,
                         FaculityName = candidate.Name,
+                        CandidateId=candidate.Id,
                         PunchDate = first.Date,
                         FirstPunch = first.ToString("HH:mm:ss"),
                         LastPunch = last.ToString("HH:mm:ss")

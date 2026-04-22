@@ -1,5 +1,6 @@
 ﻿using BioMatricAttendance.AttendenceContext;
 using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Helper;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 using BioMatricAttendance.Response;
@@ -17,6 +18,67 @@ namespace BioMatricAttendance.Services
             _instituteRepository = instituteRepository;
             _context = context;
             _deviceRepository = deviceRepository;
+        }
+
+
+        public async Task<CandidateAttendanceHistoryDto?> GetCandidateAttendanceHistoryAsync(
+    int instituteId,
+    int candidateId,
+    DateTime? startDatePk,
+    DateTime? endDatePk
+    )
+        {
+            var (startDate, endDate) = DateTimeHelper.GetUtcRangeForPakistanDate(startDatePk, endDatePk);
+
+           
+            var candidate = await _context.Candidates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == candidateId && c.Enable);
+            if (candidate == null) return null;
+
+           
+            var device = await _context.BiomatricDevices
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.DeviceId == candidate.DeviceId && d.InstituteId == instituteId && !d.IsDeleted&& !d.isRegistered);
+            if (device == null) return null;
+
+           
+            var logs = await _context.TimeLogs
+                .AsNoTracking()
+                .Where(t => t.DeviceId == candidate.DeviceId
+                            && t.DeviceUserId == candidate.DeviceUserId
+                            && t.PunchTime >= startDate
+                            && t.PunchTime < endDate)
+                .ToListAsync();
+
+          
+            var totalDays = (endDate.Date - startDate.Date).Days;
+            var days = Enumerable.Range(0, totalDays)
+                .Select(i =>
+                {
+                    var date = startDate.Date.AddDays(i);
+                    var dayLogs = logs.Where(l => l.PunchTime.Date == date).ToList();
+                    if (!dayLogs.Any())
+                        return new DailyAttendanceDto { Date = date, Present = false };
+                    var first = dayLogs.Min(x => x.PunchTime);
+                    var last = dayLogs.Max(x => x.PunchTime);
+                    return new DailyAttendanceDto
+                    {
+                        Date = date,
+                        Present = true,
+                        FirstPunch = first.ToString("HH:mm:ss"),
+                        LastPunch = last.ToString("HH:mm:ss")
+                    };
+                }).ToList();
+
+            return new CandidateAttendanceHistoryDto
+            {
+                DeviceUserId = candidate.DeviceUserId,
+                DeviceId = candidate.DeviceId,
+                Name = candidate.Name ?? string.Empty,
+                Previliges=candidate.Previliges,
+                Days = days
+            };
         }
         public async Task<int> CreateInstitute(CreateInstituteDto dto)
         {

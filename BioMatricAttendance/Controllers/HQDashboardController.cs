@@ -19,9 +19,9 @@ namespace BioMatricAttendance.Controllers
 
         [HttpGet("hq/dashboard")]
 
-        public async Task<IActionResult> GetHQDashboard([FromQuery] int? regionId)
+        public async Task<IActionResult> GetHQDashboard([FromQuery] int? regionId,DateTime startDate,DateTime endDate)
         {
-            var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId ?? 0);
+            var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId ?? 0, startDate, endDate);
             return Ok(new APIResponse<object>
             {
                 Sucess = true,

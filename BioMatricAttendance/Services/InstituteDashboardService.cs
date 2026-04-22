@@ -89,10 +89,15 @@ namespace BioMatricAttendance.Services
             var studentAbsent = students.Count - studentPresent;
 
            
-            var activeDevices = logs
-                .Select(l => l.DeviceId)
-                .Distinct()
-                .Count();
+            //var activeDevices = logs
+            //    .Select(l => l.DeviceId)
+            //    .Distinct()
+            //    .Count();
+
+            var activeDeviceIds = logs.Select(t => t.DeviceId).Distinct().ToList();
+            var activeDevices = devices
+              .Where(d => d.isRegistered == true)
+                .Count(d => activeDeviceIds.Contains(d.DeviceId));
 
 
             var todayShiftAssignments = await _appDbContext.CandidateShifts

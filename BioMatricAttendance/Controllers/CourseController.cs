@@ -96,8 +96,8 @@ namespace BioMatricAttendance.Controllers
             return Ok();
         }
 
-        [HttpPost("RemoveCourseCandidate")]
-        public async Task<IActionResult> AddCourseCandidate(int id)
+        [HttpDelete("RemoveCourseCandidate")]
+        public async Task<IActionResult> RemoveCourseCandidate(int id)
         {
            var res= await _courseCandidateService.GetById(id);
 

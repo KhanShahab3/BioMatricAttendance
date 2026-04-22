@@ -2,6 +2,7 @@
 {
     public class InstituteDashboardRowDto
     {
+        public int InstituteId { get; set; }
         public string InstituteName { get; set; }
         public string RegionName { get; set; }
 

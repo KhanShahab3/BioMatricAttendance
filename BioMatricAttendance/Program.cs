@@ -55,20 +55,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowOrigin", builder =>
     {
         builder
-        .WithOrigins(new string[]
-        {
-            "http://localhost:5173",
-            "https://wonderful-florentine-84e2e4.netlify.app/",
-            "https://stevta.com",
-             "http://stevta.com",
-
-
-
-
-        })
-        .WithMethods("POST", "PUT", "DELETE", "GET")
-        .AllowAnyHeader()
-        .AllowCredentials();
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://wonderful-florentine-84e2e4.netlify.app", 
+                "https://stevta.com",
+                "http://stevta.com"
+            )
+            .AllowAnyMethod() 
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
@@ -137,9 +132,10 @@ if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowOrigin");
 app.UseHttpsRedirection();
 
-app.UseCors("AllowOrigin");
+
 
 app.UseAuthorization();
 

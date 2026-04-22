@@ -6,7 +6,9 @@ namespace BioMatricAttendance.Services
     {
      Task<DistrictDashboardDto> GetDistrictDashboard(
 int? districtId,
-int? instituteId = null
+int? instituteId,
+DateTime?startDate,
+DateTime? endDate
 
 );
 

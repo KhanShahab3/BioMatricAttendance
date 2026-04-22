@@ -20,7 +20,11 @@ namespace BioMatricAttendance.Controllers
 
         public async Task<IActionResult> GetDistrictDashboard(
         
-            [FromQuery] int? instituteId)
+            [FromQuery] int? instituteId,
+
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate
+            )
         {
             int ? districtId=null;
 
@@ -28,7 +32,7 @@ namespace BioMatricAttendance.Controllers
             if (!string.IsNullOrEmpty(districtClaim))
                 districtId = int.Parse(districtClaim);
 
-            var dashboard = await _districtDashboardService.GetDistrictDashboard(districtId, instituteId);
+            var dashboard = await _districtDashboardService.GetDistrictDashboard(districtId, instituteId, startDate, endDate);
             return Ok(dashboard);
 
         }

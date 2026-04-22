@@ -20,17 +20,21 @@ namespace BioMatricAttendance.Controllers
         [HttpGet("GetRegionDashboard")]
         public async Task<IActionResult> GetRegionDashboard(
             //[FromQuery] int regionId,
-            [FromQuery] int? districtId)
-            
+            [FromQuery] int? districtId,
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate
+            )
         {
             int ?regionId = null;
             var regionClaim = User.FindFirst("RegionId")?.Value;
             if (!string.IsNullOrEmpty(regionClaim))
                 regionId = int.Parse(regionClaim);
 
-            var dashboard = await _regionDashboardService.GetRegionDashboardAsync(regionId,districtId);
+            var dashboard = await _regionDashboardService.GetRegionDashboardAsync(regionId,districtId,startDate,endDate);
             return Ok(dashboard);
         }
+
+      
 
         [HttpGet("GetRegionalDashboardReport")]
         public async Task<IActionResult> GetRegionalDashboardReport(

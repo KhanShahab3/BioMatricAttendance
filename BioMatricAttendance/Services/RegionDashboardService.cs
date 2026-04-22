@@ -19,10 +19,12 @@ namespace BioMatricAttendance.Services
 
         public async Task<RegionDashboardDto> GetRegionDashboardAsync(
             int? regionId,
-            int? districtId
+            int? districtId,
+            DateTime? startDate,
+            DateTime ?endDate
             )
         {
-            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(null, null);
+            var (startUtc, endUtc) = DateTimeHelper.GetUtcRangeForPakistanDate(startDate, endDate);
             var institutes = await _regionRepo.GetInstitutesAsync(regionId, districtId);
             var instituteIds = institutes.Select(i => i.Id).ToList();
 
@@ -33,8 +35,13 @@ namespace BioMatricAttendance.Services
             var candidates = await _repo.GetCandidatesByDeviceIds(deviceIds);
             var faculty = candidates.Where(c => c.Previliges == "Manager").ToList();
             var students = candidates.Where(c => c.Previliges == "NormalUser").ToList();
+
             var logs = await _repo.GetTimeLogs(deviceIds,  startUtc,endUtc);
             var presentIds = logs.Select(l => (int)l.DeviceUserId).Distinct().ToList();
+
+            var activeDeviceIds = logs.Select(t => t.DeviceId).Distinct().ToList();
+            var devicesActive = devices
+               .Count(d => activeDeviceIds.Contains(d.DeviceId));
             var summary = new RegionDashboardSummaryDto
             {
                 TotalInstitutes = institutes.Count,
@@ -53,7 +60,12 @@ namespace BioMatricAttendance.Services
                         : 0,
 
                 TotalDevices = devices.Count,
-                ActiveDevices = logs.Select(l => l.DeviceId).Distinct().Count(),
+                ActiveDevices = devicesActive,
+                InactiveDevices = devices.Count - devicesActive,
+
+
+
+
 
                 StaffMaleCount = candidates.Count(c => c.gender == Gender.Male && c.Previliges=="Manager"),
                 StaffFemaleCount = candidates.Count(c => c.gender == Gender.Female && c.Previliges == "Manager"),
@@ -79,11 +91,15 @@ namespace BioMatricAttendance.Services
                     .ToList();
 
                 //if (!instCandidates.Any()) continue;
+                var instTotalDevices = instDeviceIds.Count;
 
                 var instFaculty = instCandidates.Where(c => c.Previliges == "Manager").ToList();
                 var instStudents = instCandidates.Where(c => c.Previliges == "NormalUser").ToList();
 
                 var instLogs = logs.Where(l => instDeviceIds.Contains(l.DeviceId)).ToList();
+                var instActiveDeviceIds = instLogs.Select(l => l.DeviceId).Distinct().ToList();
+                var instActiveCount = devices.Count(d => instActiveDeviceIds.Contains(d.DeviceId));
+                var instInactiveCount = Math.Max(0, instTotalDevices - instActiveCount);
 
                 instituteRows.Add(new InstituteComparisonDto
                 {
@@ -105,7 +121,9 @@ namespace BioMatricAttendance.Services
                             : 0,
 
                     TotalDevices = instDeviceIds.Count,
-                    ActiveDevices = instLogs.Select(l => l.DeviceId).Distinct().Count(),
+                    ActiveDevices = instActiveCount,
+                    InactiveDevices = instInactiveCount,
+
 
                     MaleCount = instCandidates.Count(c => c.gender == Gender.Male),
                     FemaleCount = instCandidates.Count(c => c.gender == Gender.Female),
