@@ -104,6 +104,7 @@ namespace BioMatricAttendance.Services
                 instituteRows.Add(new InstituteComparisonDto
                 {
                     InstituteName = institute.InstituteName,
+                    Address = institute.Address,
                     DistrictName = institute.District?.DistrictName ?? "",
 
                     TotalFaculty = instFaculty.Count,
@@ -195,6 +196,7 @@ namespace BioMatricAttendance.Services
                     report.Add(new RegionalFaculityAttendanceDto
                     {
                         InstituteName = institute.InstituteName,
+                        Address = institute.Address,
                         District = institute.District?.DistrictName ?? "",
                         TotalFaculty = totalFaculty,
                         Present = presentCount,
@@ -230,6 +232,7 @@ namespace BioMatricAttendance.Services
                     report.Add(new RegionalStudentAttendanceDto
                     {
                         InstituteName = institute.InstituteName,
+                        Address = institute.Address,
                         District = institute.District?.DistrictName ?? "",
                         TotalStudents = totalStudents,
                         Present = presentCount,

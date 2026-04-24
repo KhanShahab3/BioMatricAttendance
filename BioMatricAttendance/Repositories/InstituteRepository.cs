@@ -110,14 +110,18 @@ namespace BioMatricAttendance.Repositories
 
             return false;
         }
-
-        public async Task<string?> GetInstituteName(int? instituteId)
+        public async Task<InstituteInfoDto?> GetInstituteName(int? instituteId)
         {
             return await _appContext.Institutes
                 .Where(i => i.Id == instituteId && !i.IsDeleted)
-                .Select(i => i.InstituteName)
+                .Select(i => new InstituteInfoDto
+                {
+                    InstituteName = i.InstituteName,
+                    Address = i.Address
+                })
                 .FirstOrDefaultAsync();
         }
+ 
          public async Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId)
         {
            return await _appContext.BiomatricDevices.Where(x=>x.InstituteId==InstituteId&& x.isRegistered).ToListAsync();
@@ -208,7 +212,8 @@ namespace BioMatricAttendance.Repositories
                         DeviceUserId = g.Key.DeviceUserId,
                         DeviceId = g.Key.DeviceId,
                         StudentName = candidate.Name,
-                        CandidateId=candidate.Id,
+                        PunchDate = first.Date,
+                        CandidateId =candidate.Id,
                         FirstPunch = first.ToString("HH:mm:ss"),
                         LastPunch = last.ToString("HH:mm:ss")
                     };

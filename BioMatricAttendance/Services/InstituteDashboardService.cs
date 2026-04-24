@@ -50,7 +50,8 @@ namespace BioMatricAttendance.Services
 
 
 
-            var instituteName = await _insRepo.GetInstituteName(instituteId);
+            var institute = await _insRepo.GetInstituteName(instituteId);
+            
 
           
             var devices = await _instituteRepository.GetDevicesByInstituteId(instituteId);
@@ -60,7 +61,8 @@ namespace BioMatricAttendance.Services
             {
                 return new InstituteDashboardDto
                 {
-                    InstituteName = instituteName ?? string.Empty
+                    InstituteName = institute.
+                    Address = institute.Address ?? string.Empty
                 };
             }
 
@@ -87,8 +89,8 @@ namespace BioMatricAttendance.Services
 
             var facultyAbsent = faculty.Count - facultyPresent;
             var studentAbsent = students.Count - studentPresent;
+         
 
-           
             //var activeDevices = logs
             //    .Select(l => l.DeviceId)
             //    .Distinct()
@@ -155,7 +157,9 @@ namespace BioMatricAttendance.Services
 
             return new InstituteDashboardDto
             {
-                InstituteName = instituteName ?? string.Empty,
+                InstituteName = institute.InstituteName,
+                Address = institute.Address,
+
 
                 TotalFaculty = faculty.Count,
                 FacultyPresent = facultyPresent,
@@ -169,9 +173,9 @@ namespace BioMatricAttendance.Services
                 StudentsAbsent = studentAbsent,
 
                 TotalCourses = courseCount,
-                ShiftWiseAttendance = shiftWiseAttendance
-                //ActiveDevices = activeDevices,
-                //InactiveDevices = deviceIds.Count - activeDevices
+                ShiftWiseAttendance = shiftWiseAttendance,
+                ActiveDevices = activeDevices,
+                InActiveDevices = deviceIds.Count - activeDevices
             };
         }
 

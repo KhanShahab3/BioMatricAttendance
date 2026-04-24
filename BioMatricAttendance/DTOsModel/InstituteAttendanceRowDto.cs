@@ -4,6 +4,7 @@
     {
         public int InstituteId { get; set; }
         public string InstituteName { get; set; }
+        public string Address { get; set; }
         public string Region { get; set; }
         public int Total { get; set; }
         public int Present { get; set; }

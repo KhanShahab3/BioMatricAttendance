@@ -227,7 +227,7 @@ namespace BioMatricAttendance.Controllers
 
 
        
-   [HttpGet("institute/{instituteId}/candidate/{candidateId}/history")]
+   [HttpGet("Getcandidate/{candidateId}/historyBy/{instituteId}")]
 public async Task<IActionResult> GetCandidateHistory(
     int instituteId,
     int candidateId,

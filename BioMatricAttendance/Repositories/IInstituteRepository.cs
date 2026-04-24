@@ -15,7 +15,7 @@ namespace BioMatricAttendance.Repositories
         Task<List<Institute>> GetInstituteCourses();
 
        Task<(List<Institute> Items, int TotalCount)> GetInstitutePaged(int page, int pageSize);
-        Task<string?> GetInstituteName(int? instituteId);
+        Task<InstituteInfoDto> GetInstituteName(int? instituteId);
         Task<List<BiomatricDevice>> GetInstituteWiseDevice(int InstituteId);
         Task<List<InstituteCandidateResponse>> GetInstituteWiseCandidate(int InstituteId);
         Task<List<InstituteFacultyResponse>> GetInstituteWiseFaculty(int InstituteId);

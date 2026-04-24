@@ -99,6 +99,7 @@ namespace BioMatricAttendance.Services
                 instituteRows.Add(new InstituteComparisonDto
                 {
                     InstituteName = institute.InstituteName,
+                    Address= institute.Address,
                     DistrictName = institute.District?.DistrictName ?? "",
 
                     TotalFaculty = instFaculty.Count,
@@ -197,6 +198,7 @@ namespace BioMatricAttendance.Services
                 facultyReports.Add(new DistrictFaculityAttendanceDto
                 {
                     InstituteName = ins.InstituteName,
+                    Address= ins.Address,
                     TotalFaculty = instFaculty.Count,
                     Present = instFaculty.Count(f => instPresentIds.Contains(f.DeviceUserId)),
                     //FacultyAbsent = instFaculty.Count - instFaculty.Count(f => instPresentIds.Contains(f.DeviceUserId)),
@@ -208,6 +210,7 @@ namespace BioMatricAttendance.Services
                 studentReports.Add(new DistrictStudentAttendanceDto
                 {
                     InstituteName = ins.InstituteName,
+                    Address = ins.Address,
                     TotalStudents = instStudents.Count,
                     Present = instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)),
                     //StudentsAbsent = instStudents.Count - instStudents.Count(s => instPresentIds.Contains(s.DeviceUserId)),

@@ -39,7 +39,7 @@ namespace BioMatricAttendance.Services
            
             var device = await _context.BiomatricDevices
                 .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.DeviceId == candidate.DeviceId && d.InstituteId == instituteId && !d.IsDeleted&& !d.isRegistered);
+                .FirstOrDefaultAsync(d => d.DeviceId == candidate.DeviceId && d.InstituteId == instituteId && !d.IsDeleted && d.isRegistered);
             if (device == null) return null;
 
            
@@ -73,8 +73,11 @@ namespace BioMatricAttendance.Services
 
             return new CandidateAttendanceHistoryDto
             {
+                CandidateId= candidate.Id,
                 DeviceUserId = candidate.DeviceUserId,
                 DeviceId = candidate.DeviceId,
+                StartDate= startDate,
+                EndDate= endDate,
                 Name = candidate.Name ?? string.Empty,
                 Previliges=candidate.Previliges,
                 Days = days
@@ -122,7 +125,10 @@ namespace BioMatricAttendance.Services
                         throw new InvalidOperationException("One or more selected devices are already assigned to an institute.");
 
                     foreach (var device in devices)
+                    {
                         device.InstituteId = instituteId;
+                        device.isRegistered = true;
+                    }
 
                     await _context.SaveChangesAsync();
                 }
@@ -301,7 +307,10 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
 
                   
                     foreach (var d in devicesToAssign)
+                    {
                         d.InstituteId = institute.Id;
+                        d.isRegistered = true;
+                    }
 
                     await _context.SaveChangesAsync();
                 }

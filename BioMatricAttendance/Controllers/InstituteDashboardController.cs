@@ -8,7 +8,7 @@ namespace BioMatricAttendance.Controllers
     [Route("api/[controller]")]
     [ApiController]
    
-    // CHANGE 1: Allow both roles to enter the controller
+    
     [Authorize(Roles = "super_admin,institute_admin")]
     public class InstituteDashboardController : ControllerBase
     {
@@ -19,20 +19,19 @@ namespace BioMatricAttendance.Controllers
         }
 
         [HttpGet("Institute/dashboard")]
-        // CHANGE 2: Add 'id' as an optional parameter for the Super Admin
+      
         public async Task<IActionResult> GetInstituteDashboard(int? id)
         {
             int? instituteId = null;
 
-            // Logic for Institute Admin (Your existing logic)
+          
             var instituteClaim = User.FindFirst("InstituteId")?.Value;
             if (!string.IsNullOrEmpty(instituteClaim))
             {
                 instituteId = int.Parse(instituteClaim);
             }
 
-            // Logic for Super Admin (The new logic)
-            // If the user is Super Admin, they use the 'id' passed from the frontend
+           
             if (User.IsInRole("super_admin"))
             {
                 instituteId = id;

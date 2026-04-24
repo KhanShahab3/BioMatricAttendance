@@ -5,7 +5,9 @@
 
 
         public string InstituteName { get; set; }
+       
         public string DistrictName { get; set; }
+        public string Address { get; set; }
 
         public int FacultyPresent { get; set; }
         public int TotalFaculty { get; set; }

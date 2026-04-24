@@ -3,7 +3,8 @@
     public class InstituteDashboardDto
     {
 
-        public string InstituteName { get; set; }   
+        public string InstituteName { get; set; }  =string.Empty;
+        public string Address { get; set; } = string.Empty;
         public int FacultyPresent { get; set; }
         public int FacultyMale { get; set; }
         public int FacultyFemale { get; set; }
@@ -11,6 +12,8 @@
         public int StudentFemale { get; set; }
         public int TotalFaculty { get; set; }
         public int FacultyAbsent { get; set; }
+        public int ActiveDevices { get; set; }
+        public int InActiveDevices { get; set; } 
 
        
         //public int StaffOvertime { get; set; }

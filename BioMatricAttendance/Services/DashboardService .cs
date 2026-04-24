@@ -85,6 +85,7 @@ namespace BioMatricAttendance.Services
                 {
                     InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
+                    Address = institute.Address,
                     RegionName = institute.Region?.RegionName ?? "",
                     FacultyPresent = instituteFaculty.Count(f => institutePresentIds.Contains(f.DeviceUserId)),
                     TotalFaculty = instituteFaculty.Count,
@@ -155,6 +156,7 @@ namespace BioMatricAttendance.Services
                 {
                     InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
+                    Address = institute.Address,
                     Region = institute.Region?.RegionName ?? "",
                     Total = totalFaculty,
                     Present = facultyPresent,
