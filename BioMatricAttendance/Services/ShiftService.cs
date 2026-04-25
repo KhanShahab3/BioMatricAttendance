@@ -111,7 +111,7 @@ namespace BioMatricAttendance.Services
                 .ToListAsync();
 
 
-            if (existingShifts.Any())
+            if (!existingShifts.Any())
             {
                 return new APIResponse<string>
                 {
