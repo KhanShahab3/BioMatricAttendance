@@ -109,20 +109,14 @@ namespace BioMatricAttendance.Services
             var existingShifts = await _appDbContext.CandidateShifts
                 .Where(cs => selectedIds.Contains(cs.CandidateId))
                 .ToListAsync();
+            int deleteCount = 0;
 
-
-            if (!existingShifts.Any())
+            if (existingShifts.Any())
             {
-                return new APIResponse<string>
-                {
-                    Sucess = false,
-                    Message = $"Shift with Id {dto.ShiftId} does not exist",
-                    StatusCode = 400,
-                    Data = null
-                };
+                _appDbContext.CandidateShifts.RemoveRange(existingShifts);
+                 deleteCount = existingShifts.Count;
             }
-            _appDbContext.CandidateShifts.RemoveRange(existingShifts);
-            int deleteCount = existingShifts.Count;
+           
 
             if (dto.ShiftId > 0)  
             {
