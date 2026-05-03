@@ -107,30 +107,34 @@ namespace BioMatricAttendance.Services
 
                 var instituteId = institute.Id;
 
-              
+                
                 if (dto.DeviceIds != null && dto.DeviceIds.Any())
                 {
-                    var selectedDeviceIds = dto.DeviceIds.Distinct().ToList();
+                    var selectedDeviceIds = dto.DeviceIds.Where(id => id > 0).Distinct().ToList();
 
-                    var devices = await _context.BiomatricDevices
-                        .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
-                        .ToListAsync();
-
-                    if (devices.Count != selectedDeviceIds.Count)
-                        throw new InvalidOperationException("One or more selected devices were not found.");
-
-                    // Prevent assigning devices already assigned to another institute
-                    var alreadyAssigned = devices.Where(d => d.InstituteId.HasValue).ToList();
-                    if (alreadyAssigned.Any())
-                        throw new InvalidOperationException("One or more selected devices are already assigned to an institute.");
-
-                    foreach (var device in devices)
+                    if (selectedDeviceIds.Any())
                     {
-                        device.InstituteId = instituteId;
-                        device.isRegistered = true;
-                    }
+                        var devices = await _context.BiomatricDevices
+                            .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
+                            .ToListAsync();
 
-                    await _context.SaveChangesAsync();
+                        var missingIds = selectedDeviceIds.Except(devices.Select(d => d.Id)).ToList();
+                        if (missingIds.Any())
+                            throw new InvalidOperationException($"Device id(s) not found: {string.Join(',', missingIds)}");
+
+                        var alreadyAssigned = devices.Where(d => d.InstituteId.HasValue).ToList();
+                        if (alreadyAssigned.Any())
+                            throw new InvalidOperationException("One or more selected devices are already assigned to an institute.");
+
+                        foreach (var device in devices)
+                        {
+                            device.InstituteId = instituteId;
+                            device.isRegistered = true;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+                   
                 }
 
                 await transaction.CommitAsync();
@@ -273,46 +277,66 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
                 
                 await _instituteRepository.UpdateInstitute(updateEntity);
 
-              
+               
                 if (institute.DeviceIds != null)
                 {
-                    var selectedDeviceIds = institute.DeviceIds;
-
-                 
-                    var devicesToAssign = await _context.BiomatricDevices
-                        .Where(d => selectedDeviceIds.Contains(d.Id) && !d.IsDeleted)
-                        .ToListAsync();
-
-                    //if (devicesToAssign.Count != selectedDeviceIds.Count)
-                    //    throw new InvalidOperationException("One or more devices not found.");
-
-                   
-                    var alreadyAssignedElsewhere = devicesToAssign
-                        .Where(d => d.InstituteId.HasValue && d.InstituteId.Value != institute.Id)
-                        .ToList();
-
-                    if (alreadyAssignedElsewhere.Any())
-                        throw new InvalidOperationException("One or more devices already assigned to another institute.");
+                    var originalList = institute.DeviceIds;
+                    var positiveIds = originalList.Where(id => id > 0).Distinct().ToList();
 
                   
-                    var currentlyAssigned = await _context.BiomatricDevices
-                        .Where(d => d.InstituteId == institute.Id)
-                        .ToListAsync();
-
-                    foreach (var d in currentlyAssigned)
+                    if (!originalList.Any())
                     {
-                        if (!selectedDeviceIds.Contains(d.Id))
+                        var currentlyAssigned = await _context.BiomatricDevices
+                            .Where(d => d.InstituteId == institute.Id)
+                            .ToListAsync();
+
+                        foreach (var d in currentlyAssigned)
                             d.InstituteId = null;
-                    }
 
+                        await _context.SaveChangesAsync();
+                    }
                   
-                    foreach (var d in devicesToAssign)
+                    else if (!positiveIds.Any())
                     {
-                        d.InstituteId = institute.Id;
-                        d.isRegistered = true;
+                        
                     }
+                    else
+                    {
+                       
+                        var devicesToAssign = await _context.BiomatricDevices
+                            .Where(d => positiveIds.Contains(d.Id) && !d.IsDeleted)
+                            .ToListAsync();
 
-                    await _context.SaveChangesAsync();
+                        var missing = positiveIds.Except(devicesToAssign.Select(d => d.Id)).ToList();
+                        if (missing.Any())
+                            throw new InvalidOperationException($"Device id(s) not found: {string.Join(',', missing)}");
+
+                        var alreadyAssignedElsewhere = devicesToAssign
+                            .Where(d => d.InstituteId.HasValue && d.InstituteId.Value != institute.Id)
+                            .ToList();
+
+                        if (alreadyAssignedElsewhere.Any())
+                            throw new InvalidOperationException("One or more devices already assigned to another institute.");
+
+                        var currentlyAssigned = await _context.BiomatricDevices
+                            .Where(d => d.InstituteId == institute.Id)
+                            .ToListAsync();
+
+                        
+                        foreach (var d in currentlyAssigned)
+                        {
+                            if (!positiveIds.Contains(d.Id))
+                                d.InstituteId = null;
+                        }
+
+                        foreach (var d in devicesToAssign)
+                        {
+                            d.InstituteId = institute.Id;
+                            d.isRegistered = true;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
                 }
 
                 await transaction.CommitAsync();

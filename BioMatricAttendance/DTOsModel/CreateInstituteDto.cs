@@ -10,7 +10,7 @@
         public string ContactPerson { get; set; }
         public int DistrictId { get; set; }
         public int RegionId { get; set; }
-        public List<int> ?DeviceIds { get; set; }
+        public List<int> ?DeviceIds { get; set; } = new List<int>();
         public DateTime CreatedAt { get; set; }=DateTime.Now;
 
     }
