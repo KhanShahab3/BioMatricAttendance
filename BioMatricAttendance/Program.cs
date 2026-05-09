@@ -131,12 +131,14 @@ if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseCors("AllowOrigin");
-app.UseHttpsRedirection();
 
 
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

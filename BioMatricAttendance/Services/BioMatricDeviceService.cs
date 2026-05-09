@@ -1,15 +1,36 @@
-﻿using BioMatricAttendance.DTOsModel;
+﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Services
 {
     public class BioMatricDeviceService:IBioMatricDeviceService
     {
         private readonly IBioMatricDeviceRepository _deviceRepository;
-        public BioMatricDeviceService(IBioMatricDeviceRepository deviceRepository)
+        private readonly AppDbContext _context;
+        public BioMatricDeviceService(IBioMatricDeviceRepository deviceRepository, AppDbContext context)
         {
             _deviceRepository = deviceRepository;
+            _context = context;
+        }
+
+        public async Task UnassignDevices(List<int> deviceIds)
+        {
+            if (deviceIds == null || !deviceIds.Any()) return;
+
+            var devices = await _context.BiomatricDevices
+                .Where(d => deviceIds.Contains(d.Id))
+                .ToListAsync();
+
+            foreach (var d in devices)
+            {
+                d.InstituteId = 0;
+                d.isRegistered = false;
+            }
+
+            await _context.SaveChangesAsync();
         }
         public async Task<BiomatricDevice> CreateDevice(BiomatricDevice device)
         {

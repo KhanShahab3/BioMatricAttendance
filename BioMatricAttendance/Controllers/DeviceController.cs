@@ -127,6 +127,29 @@ namespace BioMatricAttendance.Controllers
             });
         }
 
+        [HttpPost("unassign")]
+        public async Task<IActionResult> UnassignDevices([FromBody] List<int> deviceIds)
+        {
+            if (deviceIds == null || !deviceIds.Any())
+            {
+                return BadRequest(new APIResponse<object>
+                {
+                    Sucess = false,
+                    Message = "No device ids provided.",
+                    StatusCode = 400,
+                    Data = new { }
+                });
+            }
 
+            await _deviceService.UnassignDevices(deviceIds);
+
+            return Ok(new APIResponse<object>
+            {
+                Sucess = true,
+                Message = "Devices unassigned successfully.",
+                StatusCode = 200,
+                Data = new { }
+            });
+        }
     }
 }
