@@ -103,6 +103,7 @@ namespace BioMatricAttendance.Services
 
                 instituteRows.Add(new InstituteComparisonDto
                 {
+                    InstituteId = institute.Id,
                     InstituteName = institute.InstituteName,
                     Address = institute.Address,
                     DistrictName = institute.District?.DistrictName ?? "",
@@ -195,6 +196,8 @@ namespace BioMatricAttendance.Services
 
                     report.Add(new RegionalFaculityAttendanceDto
                     {
+
+                        InstituteId = institute.Id,
                         InstituteName = institute.InstituteName,
                         Address = institute.Address,
                         District = institute.District?.DistrictName ?? "",

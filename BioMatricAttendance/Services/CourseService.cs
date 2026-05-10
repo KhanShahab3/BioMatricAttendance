@@ -1,15 +1,20 @@
-﻿using BioMatricAttendance.DTOsModel;
+﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
+using BioMatricAttendance.Response;
+using Microsoft.EntityFrameworkCore;
 
 namespace BioMatricAttendance.Services
 {
     public class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
-        public CourseService(ICourseRepository courseRepository)
+        private readonly AppDbContext _context;
+        public CourseService(ICourseRepository courseRepository,AppDbContext context)
         {
             _courseRepository = courseRepository;
+            _context = context;
         }
 
         public async Task<List<GetCourseDto>> GetCoursesByInstituteId(int instituteId)
@@ -25,22 +30,30 @@ namespace BioMatricAttendance.Services
                 .ToList();
             return courseDto;
         }
-        public async Task<CourseDto> AddCourseAsync(CourseDto dto)
+        public async Task<CourseDto>AddCourseAsync(CourseDto dto)
 
 
         {
-            var newCourse = new Course
+            try
             {
-                CourseName = dto.CourseName,
-                CourseCode = dto.CourseCode,
-                Duration = dto.Duration,
-                IsDeleted = false,
-                InstituteId = dto.InstituteId,
-                CreatedAt=DateTime.UtcNow,
+                var newCourse = new Course
+                {
+                    CourseName = dto.CourseName,
+                    CourseCode = dto.CourseCode,
+                    Duration = dto.Duration,
+                    IsDeleted = false,
+                    InstituteId = dto.InstituteId,
+                    CreatedAt = DateTime.UtcNow,
 
-            };
-            await _courseRepository.CreateCourse(newCourse);
-            return dto;
+                };
+                await _courseRepository.CreateCourse(newCourse);
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("DuplicateCode");
+            }
+
 
         }
 
@@ -53,17 +66,25 @@ namespace BioMatricAttendance.Services
 
         public async Task<CourseDto> UpdateCourseAsync( CourseDto dto)
         {
-            var updatedCourse = new Course
+            try
             {
-                Id = dto.Id,
-                CourseName = dto.CourseName,
-                CourseCode = dto.CourseCode,
-                Duration = dto.Duration,
-                IsDeleted = false,
-                InstituteId = dto.InstituteId,
-            };
-            await _courseRepository.UpdateCourse(updatedCourse);
-            return dto;
+                var updatedCourse = new Course
+                {
+                    Id = dto.Id,
+                    CourseName = dto.CourseName,
+                    CourseCode = dto.CourseCode,
+                    Duration = dto.Duration,
+                    IsDeleted = false,
+                    InstituteId = dto.InstituteId,
+                };
+                await _courseRepository.UpdateCourse(updatedCourse);
+                return dto;
+            }
+            catch (Exception ex)
+            {
+              
+                throw new Exception($"Error updating course: {ex.Message}");
+            }
         }
 
         public async Task<List<CourseDto>> GetAllCoursesAsync()

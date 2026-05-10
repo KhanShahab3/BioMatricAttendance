@@ -25,5 +25,7 @@ namespace BioMatricAttendance.Services
     DateTime? startDatePk,
     DateTime? endDatePk
     );
+
+        Task<bool> UpdateCandidate(UpdateCandidateRequest request);
     }
 }

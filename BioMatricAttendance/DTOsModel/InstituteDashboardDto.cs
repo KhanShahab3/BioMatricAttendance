@@ -1,8 +1,11 @@
-﻿namespace BioMatricAttendance.DTOsModel
+﻿using System.ComponentModel;
+
+namespace BioMatricAttendance.DTOsModel
 {
     public class InstituteDashboardDto
     {
 
+        public int InstituteId { get; set; }
         public string InstituteName { get; set; }  =string.Empty;
         public string Address { get; set; } = string.Empty;
         public int FacultyPresent { get; set; }

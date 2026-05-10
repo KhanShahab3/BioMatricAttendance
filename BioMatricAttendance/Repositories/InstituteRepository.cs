@@ -187,41 +187,45 @@ namespace BioMatricAttendance.Repositories
             var validPairs = new HashSet<string>(candidates.Select(c => $"{c.DeviceId}:{c.DeviceUserId}"));
             var candidateUserIds = candidates.Select(c => c.DeviceUserId).Distinct().ToList();
 
-           
+
             var logs = await _appContext.TimeLogs
-                .Where(t => deviceIds.Contains(t.DeviceId)
-                            && candidateUserIds.Contains(t.DeviceUserId)
-                            && t.PunchTime >= startUtc
-                            && t.PunchTime < endUtc)
-                .AsNoTracking()
-                .ToListAsync();
+            .Where(t => deviceIds.Contains(t.DeviceId)
+                        && candidateUserIds.Contains(t.DeviceUserId)
+                        && t.PunchTime >= startUtc
+                        && t.PunchTime < endUtc)
+            .AsNoTracking()
+            .ToListAsync();
+            var logsByCandidateKey = logs
+    .Where(t => validPairs.Contains($"{t.DeviceId}:{t.DeviceUserId}"))
+    .GroupBy(t => new { t.DeviceId, t.DeviceUserId })
+    .ToDictionary(g => $"{g.Key.DeviceId}:{g.Key.DeviceUserId}", g => g.ToList());
 
-            if (!logs.Any())
-                return new List<InstitutePresentStudentResponse>();
+            //if (!logs.Any())
+            //    return new List<InstitutePresentStudentResponse>();
 
-            var grouped = logs
-                .Where(t => validPairs.Contains($"{t.DeviceId}:{t.DeviceUserId}"))
-                .GroupBy(t => new { t.DeviceId, t.DeviceUserId })
-                .Select(g =>
+            var result = candidates.Select(candidate =>
+            {
+                var key = $"{candidate.DeviceId}:{candidate.DeviceUserId}";
+                var hasLogs = logsByCandidateKey.TryGetValue(key, out var candidateLogs);
+
+                var firstPunch = hasLogs ? candidateLogs!.Min(x => x.PunchTime) : (DateTime?)null;
+                var lastPunch = hasLogs ? candidateLogs!.Max(x => x.PunchTime) : (DateTime?)null;
+
+                return new InstitutePresentStudentResponse
                 {
-                    var candidate = candidates.First(c => c.DeviceId == g.Key.DeviceId && c.DeviceUserId == g.Key.DeviceUserId);
-                    var first = g.Min(x => x.PunchTime);
-                    var last = g.Max(x => x.PunchTime);
-                    return new InstitutePresentStudentResponse
-                    {
-                        DeviceUserId = g.Key.DeviceUserId,
-                        DeviceId = g.Key.DeviceId,
-                        StudentName = candidate.Name,
-                        PunchDate = first.Date,
-                        CandidateId =candidate.Id,
-                        FirstPunch = first.ToString("HH:mm:ss"),
-                        LastPunch = last.ToString("HH:mm:ss")
-                    };
-                })
-                .ToList();
-
-            return grouped;
+                    CandidateId = candidate.Id,
+                    DeviceUserId = candidate.DeviceUserId,
+                    DeviceId = candidate.DeviceId,
+                    StudentName = candidate.Name,
+                    IsPresent = hasLogs,
+                    PunchDate = firstPunch?.Date,           
+                    FirstPunch = firstPunch?.ToString("HH:mm:ss"),
+                    LastPunch = lastPunch?.ToString("HH:mm:ss"),
+                };
+            }).ToList();
+                        return result;
         }
+
 
         public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime? StartDate, DateTime? EndDate)
         {
@@ -230,7 +234,6 @@ namespace BioMatricAttendance.Repositories
             var deviceIds = await _appContext.BiomatricDevices
                 .Where(d => d.InstituteId == InstituteId && d.isRegistered && !d.IsDeleted)
                 .Select(d => d.DeviceId)
-               
                 .ToListAsync();
 
             if (!deviceIds.Any())
@@ -238,7 +241,7 @@ namespace BioMatricAttendance.Repositories
 
             var candidates = await _appContext.Candidates
                 .Where(c => deviceIds.Contains(c.DeviceId) && c.Enable && c.Previliges.ToLower() == "manager")
-                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name,c.Id })
+                .Select(c => new { c.DeviceId, c.DeviceUserId, c.Name, c.Id })
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -256,31 +259,33 @@ namespace BioMatricAttendance.Repositories
                 .AsNoTracking()
                 .ToListAsync();
 
-            if (!logs.Any())
-                return new List<InstitutePresentFaculityResponse>();
-
-            var grouped = logs
+            var logsByCandidateKey = logs
                 .Where(t => validPairs.Contains($"{t.DeviceId}:{t.DeviceUserId}"))
                 .GroupBy(t => new { t.DeviceId, t.DeviceUserId })
-                .Select(g =>
-                {
-                    var candidate = candidates.First(c => c.DeviceId == g.Key.DeviceId && c.DeviceUserId == g.Key.DeviceUserId);
-                    var first = g.Min(x => x.PunchTime);
-                    var last = g.Max(x => x.PunchTime);
-                    return new InstitutePresentFaculityResponse
-                    {
-                        DeviceUserId = g.Key.DeviceUserId,
-                        DeviceId = g.Key.DeviceId,
-                        FaculityName = candidate.Name,
-                        CandidateId=candidate.Id,
-                        PunchDate = first.Date,
-                        FirstPunch = first.ToString("HH:mm:ss"),
-                        LastPunch = last.ToString("HH:mm:ss")
-                    };
-                })
-                .ToList();
+                .ToDictionary(g => $"{g.Key.DeviceId}:{g.Key.DeviceUserId}", g => g.ToList());
 
-            return grouped;
+            var result = candidates.Select(candidate =>
+            {
+                var key = $"{candidate.DeviceId}:{candidate.DeviceUserId}";
+                var hasLogs = logsByCandidateKey.TryGetValue(key, out var candidateLogs);
+
+                var firstPunch = hasLogs ? candidateLogs!.Min(x => x.PunchTime) : (DateTime?)null;
+                var lastPunch = hasLogs ? candidateLogs!.Max(x => x.PunchTime) : (DateTime?)null;
+
+                return new InstitutePresentFaculityResponse
+                {
+                    CandidateId = candidate.Id,
+                    DeviceUserId = candidate.DeviceUserId,
+                    DeviceId = candidate.DeviceId,
+                    FaculityName = candidate.Name,
+                    IsPresent = hasLogs,
+                    PunchDate = firstPunch?.Date,
+                    FirstPunch = firstPunch?.ToString("HH:mm:ss"),
+                    LastPunch = lastPunch?.ToString("HH:mm:ss"),
+                };
+            }).ToList();
+
+            return result;
         }
 
     }

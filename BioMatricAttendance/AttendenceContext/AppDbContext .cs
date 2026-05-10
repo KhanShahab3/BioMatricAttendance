@@ -50,6 +50,10 @@ namespace BioMatricAttendance.AttendenceContext
     .Property(x => x.Id)
     .UseIdentityAlwaysColumn();
 
+            modelBuilder.Entity<Course>()
+        .HasIndex(c => c.CourseCode)
+        .IsUnique();
+
 
 
 

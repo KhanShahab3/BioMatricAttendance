@@ -62,8 +62,16 @@ namespace BioMatricAttendance.Controllers
         [HttpPost("AddCourse")]
         public async Task<IActionResult> AddCourse([FromBody] CourseDto courseDto)
         {
-            var createdCourse = await _courseService.AddCourseAsync(courseDto);
-            return Ok(createdCourse);
+            try
+            {
+                var result = await _courseService.AddCourseAsync(courseDto);
+                return Ok(result);
+            }
+            catch (Exception ex) when (ex.Message == "DuplicateCode")
+            {
+                
+                return BadRequest(new { message = "This Course Code is already in use." });
+            }
         }
         [HttpGet("GetCourseCandidate")]
 
@@ -74,7 +82,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No CourseInfo found",
                     Data = new { },
                     StatusCode = 404
@@ -82,7 +90,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "CourseInfo fetched successfully",
                 Data = courseInfo,
                 StatusCode = 200

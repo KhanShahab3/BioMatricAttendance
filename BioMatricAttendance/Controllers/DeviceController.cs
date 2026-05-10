@@ -23,7 +23,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No devices found",
                     Data = new { },
                     StatusCode = 404
@@ -31,13 +31,34 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Devices fetched successfully",
                 Data = devices,
                 StatusCode = 200
             });
         }
-
+        [HttpGet("getUnRegisterDevices")]
+        public async Task<IActionResult> GetUnassignDevice()
+        {
+            var devices = await _deviceService.GetUnassignDevice();
+            if (devices.Count == 0)
+            {
+                return NotFound(new APIResponse<object>
+                {
+                    success = false,
+                    Message = "No devices found",
+                    Data = new { },
+                    StatusCode = 404
+                });
+            }
+            return Ok(new APIResponse<object>
+            {
+                success = true,
+                Message = "Devices fetched successfully",
+                Data = devices,
+                StatusCode = 200
+            });
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDeviceById(int id)
         {
@@ -46,7 +67,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Device not found",
                     Data = new { },
                     StatusCode = 404
@@ -54,7 +75,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Device fetched successfully",
                 Data = device,
                 StatusCode = 200
@@ -68,7 +89,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Device are not created",
                     Data = new { },
                     StatusCode = 400
@@ -76,7 +97,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Device are created succesfully",
                 StatusCode = 201
             });
@@ -91,7 +112,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Device update failed",
                     Data = new { },
                     StatusCode = 400
@@ -99,7 +120,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Device updated successfully",
                 Data = updatedDevice,
                 StatusCode = 200
@@ -113,7 +134,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Device not found",
                     Data = new { },
                     StatusCode = 404
@@ -121,31 +142,31 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Device deleted successfully",
                 StatusCode = 200
             });
         }
 
         [HttpPost("unassign")]
-        public async Task<IActionResult> UnassignDevices([FromBody] List<int> deviceIds)
+        public async Task<IActionResult> UnassignDevices(int deviceId)
         {
-            if (deviceIds == null || !deviceIds.Any())
+            if (deviceId == null||deviceId==0)
             {
                 return BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No device ids provided.",
                     StatusCode = 400,
                     Data = new { }
                 });
             }
 
-            await _deviceService.UnassignDevices(deviceIds);
+            await _deviceService.UnassignDevices(deviceId);
 
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Devices unassigned successfully.",
                 StatusCode = 200,
                 Data = new { }

@@ -2,6 +2,7 @@
 {
     public class DistrictFaculityAttendanceDto
     {
+        public int InstituteId { get; set; }
         public string InstituteName { get; set; }
         public string Address { get; set; }
         public string District { get; set; }

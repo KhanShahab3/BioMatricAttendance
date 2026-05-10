@@ -22,7 +22,7 @@ namespace BioMatricAttendance.Controllers
             if (createdUser == null) {
                 BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "user are not created",
                     Data = new { },
                     StatusCode = 400
@@ -30,7 +30,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "User are created succesfully",
                 StatusCode = 201
             });
@@ -43,7 +43,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "User not found",
                     Data = new { },
                     StatusCode = 404
@@ -51,7 +51,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "User fetched successfully",
                 Data = user,
                 StatusCode = 200
@@ -65,7 +65,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No users found",
                     Data = new { },
                     StatusCode = 404
@@ -73,7 +73,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Users fetched successfully",
                 Data = users,
                 StatusCode = 200
@@ -87,7 +87,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "User not found",
                     Data = new { },
                     StatusCode = 404
@@ -95,7 +95,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "User updated successfully",
                 Data = updatedUser,
                 StatusCode = 200
@@ -109,7 +109,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "User not found",
                     Data = new { },
                     StatusCode = 404
@@ -117,7 +117,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "User deleted successfully",
                 StatusCode = 200
             });

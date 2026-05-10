@@ -10,6 +10,7 @@ namespace BioMatricAttendance.Services
         public Task<List<GetDeviceNameDto>> GetDevices();
         public Task<BiomatricDevice> UpdateDevice(BiomatricDevice device);
         public Task<bool> RemoveDevice(int id);
-        public Task UnassignDevices(List<int> deviceIds);
+        public Task UnassignDevices(int deviceId);
+        Task<List<GetDeviceNameDto>> GetUnassignDevice();
     }
 }

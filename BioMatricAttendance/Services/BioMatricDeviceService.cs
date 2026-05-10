@@ -16,12 +16,12 @@ namespace BioMatricAttendance.Services
             _context = context;
         }
 
-        public async Task UnassignDevices(List<int> deviceIds)
+        public async Task UnassignDevices(int deviceId)
         {
-            if (deviceIds == null || !deviceIds.Any()) return;
+            if (deviceId == null ||deviceId==0 ) return;
 
             var devices = await _context.BiomatricDevices
-                .Where(d => deviceIds.Contains(d.Id))
+                .Where(d => deviceId==d.Id)
                 .ToListAsync();
 
             foreach (var d in devices)
@@ -29,6 +29,7 @@ namespace BioMatricAttendance.Services
                 d.InstituteId = 0;
                 d.isRegistered = false;
             }
+           
 
             await _context.SaveChangesAsync();
         }
@@ -50,6 +51,18 @@ namespace BioMatricAttendance.Services
                 SessionId = d.SessionId,
                 isRegistered = d.isRegistered,
                 CreatedAt=d.CreatedAt
+            }).ToList();
+        }
+        public async Task<List<GetDeviceNameDto>> GetUnassignDevice()
+        {
+            var devices = await _deviceRepository.GetUnassignDevices();
+            return devices.Select(d => new GetDeviceNameDto
+            {
+                Id = d.Id,
+                DeviceId = d.DeviceId,
+                SessionId = d.SessionId,
+                isRegistered = d.isRegistered,
+                CreatedAt = d.CreatedAt
             }).ToList();
         }
         public async Task<BiomatricDevice> UpdateDevice(BiomatricDevice device)

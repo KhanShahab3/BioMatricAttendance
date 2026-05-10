@@ -85,7 +85,7 @@ namespace BioMatricAttendance.Services
             {
                 return new APIResponse<string>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = $"Invalid Candidate Id(s): {string.Join(",", invalidIds)}",
                     StatusCode = 400,
                     Data = null
@@ -98,7 +98,7 @@ namespace BioMatricAttendance.Services
             {
                 return new APIResponse<string>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Shift type is required for assignment",
                     StatusCode = 400,
                     Data = null
@@ -128,7 +128,7 @@ namespace BioMatricAttendance.Services
                 {
                     return new APIResponse<string>
                     {
-                        Sucess = false,
+                        success = false,
                         Message = $"Shift with Id {dto.ShiftId} does not exist",
                         StatusCode = 400,
                         Data = null
@@ -158,7 +158,7 @@ namespace BioMatricAttendance.Services
 
             return new APIResponse<string>
             {
-                Sucess = true,
+                success = true,
                 Message = message,
                 StatusCode = 200,
                 Data = null
@@ -215,7 +215,7 @@ namespace BioMatricAttendance.Services
 
                 return new APIResponse<string>
                 {
-                    Sucess = true,
+                    success = true,
                     Message = $"Candidate {candidateId} shifts removed successfully",
                     StatusCode = 200
                 };
@@ -224,7 +224,7 @@ namespace BioMatricAttendance.Services
            
             return new APIResponse<string>
             {
-                Sucess = false,
+                success = false,
                 Message = $"No assigned shift found for candidate {candidateId}",
                 StatusCode = 404 
             };

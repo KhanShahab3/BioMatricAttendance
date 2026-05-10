@@ -75,12 +75,12 @@ namespace BioMatricAttendance.Services
         {
             if (dto.LeaveTypeId == null || dto.LeaveTypeId <= 0)
             {
-                return new APIResponse<string> { Sucess = false, Message = "Leave type is required", StatusCode = 400 };
+                return new APIResponse<string> { success = false, Message = "Leave type is required", StatusCode = 400 };
             }
 
             if (dto.CandidateIds == null || !dto.CandidateIds.Any())
             {
-                return new APIResponse<string> { Sucess = false, Message = "No candidates selected", StatusCode = 400 };
+                return new APIResponse<string> { success = false, Message = "No candidates selected", StatusCode = 400 };
             }
 
             
@@ -96,13 +96,13 @@ namespace BioMatricAttendance.Services
 
             if (validCandidateCount != uniqueIds.Count)
             {
-                return new APIResponse<string> { Sucess = false, Message = "One or more Candidate IDs are invalid", StatusCode = 400 };
+                return new APIResponse<string> { success = false, Message = "One or more Candidate IDs are invalid", StatusCode = 400 };
             }
 
             var leaveTypeExists = await _appDbContext.LeaveTypes.AnyAsync(lt => lt.Id == dto.LeaveTypeId);
             if (!leaveTypeExists)
             {
-                return new APIResponse<string> { Sucess = false, Message = "Invalid leave type", StatusCode = 400 };
+                return new APIResponse<string> { success = false, Message = "Invalid leave type", StatusCode = 400 };
             }
 
             
@@ -129,7 +129,7 @@ namespace BioMatricAttendance.Services
 
             return new APIResponse<string>
             {
-                Sucess = true,
+                success = true,
                 Message = existingLeaves.Any() ? "Leave updated" : "Leave assigned",
                 StatusCode = 200
             };
@@ -145,7 +145,7 @@ namespace BioMatricAttendance.Services
             {
                 return new APIResponse<string>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No leave found for the candidate today",
                     StatusCode = 404,
                     Data = null
@@ -155,7 +155,7 @@ namespace BioMatricAttendance.Services
             await _appDbContext.SaveChangesAsync();
             return new APIResponse<string>
             {
-                Sucess = true,
+                success = true,
                 Message = "Leave removed successfully",
                 StatusCode = 200,
                 Data = null

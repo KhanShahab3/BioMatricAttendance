@@ -34,7 +34,7 @@ namespace BioMatricAttendance.Controllers
              //Dto.AssignedBy
              );
 
-            if (!response.Sucess)
+            if (!response.success)
                 return BadRequest(response);
 
             return Ok(response);
@@ -44,7 +44,7 @@ namespace BioMatricAttendance.Controllers
         public async Task<IActionResult> RemoveLeave(int candidateId)
         {
             var response = await _leaveManagmentService.RemoveLeave(candidateId);
-            if (!response.Sucess)
+            if (!response.success)
                 return BadRequest(response);
             return Ok(response);
         }

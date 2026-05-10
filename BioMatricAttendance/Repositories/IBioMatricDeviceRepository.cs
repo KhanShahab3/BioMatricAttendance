@@ -9,6 +9,7 @@ namespace BioMatricAttendance.Repositories
         public Task<List<BiomatricDevice>> GetAllDevices();
         public Task<BiomatricDevice> UpdateDevice(BiomatricDevice device);
         public Task<bool> DeleteDevice(int id);
+       public  Task<List<BiomatricDevice>> GetUnassignDevices();
 
     }
 }

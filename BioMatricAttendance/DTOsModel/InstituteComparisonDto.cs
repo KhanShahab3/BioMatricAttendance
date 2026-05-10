@@ -3,7 +3,7 @@
     public class InstituteComparisonDto
     {
 
-
+        public int InstituteId { get; set; }
         public string InstituteName { get; set; }
        
         public string DistrictName { get; set; }

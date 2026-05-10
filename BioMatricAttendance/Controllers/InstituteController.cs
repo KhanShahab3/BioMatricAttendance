@@ -22,11 +22,11 @@ namespace BioMatricAttendance.Controllers
         public async Task<IActionResult> GetAllInstitutes()
         {
             var institutes = await _instituteService.GetInstitutes();
-            if (institutes==null)
+            if (institutes == null)
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "No institutes found",
                     Data = new { },
                     StatusCode = 404
@@ -34,7 +34,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Institutes fetched successfully",
                 Data = institutes,
                 StatusCode = 200
@@ -50,7 +50,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Institute not found",
                     Data = new { },
                     StatusCode = 404
@@ -58,7 +58,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Institute fetched successfully",
                 Data = institute,
                 StatusCode = 200
@@ -72,7 +72,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Institute are not created",
                     Data = new { },
                     StatusCode = 400
@@ -80,10 +80,10 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Institute are created succesfully",
                 StatusCode = 201,
-               Data = createdInstitute  
+                Data = createdInstitute
             });
         }
         [HttpPut("update")]
@@ -94,7 +94,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Institute are not updated",
                     Data = new { },
                     StatusCode = 400
@@ -102,7 +102,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Institute are updated succesfully",
                 StatusCode = 200
             });
@@ -115,7 +115,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    Sucess = false,
+                    success = false,
                     Message = "Institute are not deleted",
                     Data = new { },
                     StatusCode = 400
@@ -123,7 +123,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                Sucess = true,
+                success = true,
                 Message = "Institute are deleted succesfully",
                 StatusCode = 200
             });
@@ -139,7 +139,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -154,7 +154,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -169,7 +169,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -184,7 +184,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -192,7 +192,7 @@ namespace BioMatricAttendance.Controllers
         }
 
         [HttpGet("GetPresentStudentInstituteWise")]
-        public async Task<IActionResult> GetPresentStudentInstituteWise(int instituteId,[FromQuery]DateTime? startDate,[FromQuery]DateTime? endDate)
+        public async Task<IActionResult> GetPresentStudentInstituteWise(int instituteId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             var inst = await _instituteService.GetPresentStudentByInstitute(instituteId, startDate, endDate);
             if (inst == null)
@@ -200,7 +200,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -208,7 +208,7 @@ namespace BioMatricAttendance.Controllers
 
         }
         [HttpGet("GetPresentFaculityInstituteWise")]
-        public async Task<IActionResult> GetPresentFaculityInstituteWise(int instituteId,[FromQuery] DateTime? startDate,[FromQuery] DateTime ?endDate)
+        public async Task<IActionResult> GetPresentFaculityInstituteWise(int instituteId, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
             var inst = await _instituteService.GetPresentFaculityByInstitute(instituteId, startDate, endDate);
             if (inst == null)
@@ -216,7 +216,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    Sucess = false,
+                    success = false,
 
                 });
             }
@@ -226,24 +226,37 @@ namespace BioMatricAttendance.Controllers
 
 
 
-       
-   [HttpGet("Getcandidate/{candidateId}/historyBy/{instituteId}")]
-public async Task<IActionResult> GetCandidateHistory(
-    int instituteId,
-    int candidateId,
-    [FromQuery] DateTime? startDate = null,
-    [FromQuery] DateTime? endDate = null
-    )
+
+        [HttpGet("Getcandidate/{candidateId}/historyBy/{instituteId}")]
+        public async Task<IActionResult> GetCandidateHistory(
+         int instituteId,
+         int candidateId,
+         [FromQuery] DateTime? startDate = null,
+         [FromQuery] DateTime? endDate = null
+         )
         {
-            
+
 
 
             var dto = await _instituteService.GetCandidateAttendanceHistoryAsync(instituteId, candidateId, startDate, endDate);
             if (dto == null) return NotFound();
             return Ok(dto);
         }
+    
+
+
+
+    [HttpPut("update-candidate")]
+        public async Task<IActionResult> UpdateCandidate(UpdateCandidateRequest request)
+        {
+            var result = await _instituteService.UpdateCandidate(request);
+            if (!result)
+                return NotFound("Candidate not found");
+
+            return Ok("Updated successfully");
+        }
     }
 
 
 
-}
+    }

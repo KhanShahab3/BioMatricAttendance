@@ -5,6 +5,7 @@ using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 using BioMatricAttendance.Response;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace BioMatricAttendance.Services
 {
@@ -384,6 +385,19 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
         public async Task<List<InstitutePresentFaculityResponse>> GetPresentFaculityByInstitute(int InstituteId, DateTime? StartDate, DateTime ?EndDate)
         {
             return await _instituteRepository.GetPresentFaculityByInstitute(InstituteId, StartDate, EndDate );
+        }
+
+        public async Task<bool> UpdateCandidate(UpdateCandidateRequest request)
+        {
+            var candidate = await _context.Candidates.FindAsync(request.Id);
+            if (candidate == null)
+                return false;
+
+            candidate.Name = request.Name;
+            candidate.gender = request.Gender;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

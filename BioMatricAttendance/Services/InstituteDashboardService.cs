@@ -157,6 +157,7 @@ namespace BioMatricAttendance.Services
 
             return new InstituteDashboardDto
             {
+                
                 InstituteName = institute.InstituteName,
                 Address = institute.Address,
 
