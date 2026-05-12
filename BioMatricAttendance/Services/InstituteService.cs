@@ -171,6 +171,11 @@ namespace BioMatricAttendance.Services
                 {
                     RegionName = OneInstiute.Region.RegionName
                 },
+                District = new District
+                {
+                    Id = OneInstiute.District.Id,
+                    DistrictName = OneInstiute.District.DistrictName
+                },
                 DeviceCount = OneInstiute.BiomatricDevices?.Count() ?? 0,
                     Devices = OneInstiute.BiomatricDevices?.Select(d => new GetDeviceNameDto
                     {
@@ -224,7 +229,12 @@ namespace BioMatricAttendance.Services
                     Id=institute.Region.Id,
                     RegionName = institute.Region.RegionName
                 },
-              
+                District=new District
+                {
+                    Id=institute.District.Id,
+                    DistrictName=institute.District.DistrictName
+                },
+
                 DeviceCount = institute.BiomatricDevices?.Count() ?? 0,
                     Devices = institute.BiomatricDevices?.Select(d => new GetDeviceNameDto
                     {

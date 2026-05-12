@@ -23,7 +23,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "No devices found",
                     Data = new { },
                     StatusCode = 404
@@ -31,8 +31,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Devices fetched successfully",
+                sucess = true,
+                Message = "Devices fetched sucessfully",
                 Data = devices,
                 StatusCode = 200
             });
@@ -45,7 +45,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "No devices found",
                     Data = new { },
                     StatusCode = 404
@@ -53,8 +53,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Devices fetched successfully",
+                sucess = true,
+                Message = "Devices fetched sucessfully",
                 Data = devices,
                 StatusCode = 200
             });
@@ -67,7 +67,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Device not found",
                     Data = new { },
                     StatusCode = 404
@@ -75,8 +75,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Device fetched successfully",
+                sucess = true,
+                Message = "Device fetched sucessfully",
                 Data = device,
                 StatusCode = 200
             });
@@ -89,7 +89,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Device are not created",
                     Data = new { },
                     StatusCode = 400
@@ -97,7 +97,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
+                sucess = true,
                 Message = "Device are created succesfully",
                 StatusCode = 201
             });
@@ -112,7 +112,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Device update failed",
                     Data = new { },
                     StatusCode = 400
@@ -120,8 +120,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Device updated successfully",
+                sucess = true,
+                Message = "Device updated sucessfully",
                 Data = updatedDevice,
                 StatusCode = 200
             });
@@ -134,7 +134,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Device not found",
                     Data = new { },
                     StatusCode = 404
@@ -142,8 +142,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Device deleted successfully",
+                sucess = true,
+                Message = "Device deleted sucessfully",
                 StatusCode = 200
             });
         }
@@ -155,7 +155,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "No device ids provided.",
                     StatusCode = 400,
                     Data = new { }
@@ -166,8 +166,8 @@ namespace BioMatricAttendance.Controllers
 
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Devices unassigned successfully.",
+                sucess = true,
+                Message = "Devices unassigned sucessfully.",
                 StatusCode = 200,
                 Data = new { }
             });

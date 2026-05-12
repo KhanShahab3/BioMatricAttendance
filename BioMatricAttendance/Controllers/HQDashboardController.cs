@@ -24,8 +24,8 @@ namespace BioMatricAttendance.Controllers
             var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId ?? 0, startDate, endDate);
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "HQ Dashboard Data Retrieved Successfully",
+                sucess = true,
+                Message = "HQ Dashboard Data Retrieved sucessfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = result
             });

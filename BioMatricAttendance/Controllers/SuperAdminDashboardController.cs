@@ -27,8 +27,8 @@ namespace BioMatricAttendance.Controllers
             var result = await _dashboardService.GetSuperAdminDashboardAsync(regionId,  startDate,  endDate);
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Super Admin Dashboard Data Retrieved Successfully",
+                sucess = true,
+                Message = "Super Admin Dashboard Data Retrieved sucessfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = result
             });
@@ -39,8 +39,8 @@ namespace BioMatricAttendance.Controllers
             var result = await _dashboardService.GetAttendanceReportAsync(regionId, startDate, endDate);
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Attendance Report Data Retrieved Successfully",
+                sucess = true,
+                Message = "Attendance Report Data Retrieved sucessfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = result
             });
@@ -51,8 +51,8 @@ namespace BioMatricAttendance.Controllers
         //    var result = await _dashboardService.InstituteTableAsync(regionId);
         //    return Ok(new APIResponse<object>
         //    {
-        //        success = true,
-        //        Message = "Institute Table Data Retrieved Successfully",
+        //        sucess = true,
+        //        Message = "Institute Table Data Retrieved sucessfully",
         //        StatusCode = StatusCodes.Status200OK,
         //        Data = result
         //    });

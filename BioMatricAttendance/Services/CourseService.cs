@@ -82,8 +82,8 @@ namespace BioMatricAttendance.Services
             }
             catch (Exception ex)
             {
-              
-                throw new Exception($"Error updating course: {ex.Message}");
+
+                throw new Exception("DuplicateCode");
             }
         }
 

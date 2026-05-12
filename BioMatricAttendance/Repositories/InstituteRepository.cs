@@ -24,6 +24,7 @@ namespace BioMatricAttendance.Repositories
             var institute = await _appContext.Institutes
                 .Include(i => i.Region)
                 .Include(i => i.BiomatricDevices)
+                .Include(t=>t.District)
                 .Where(i => i.IsDeleted == false) 
                 .FirstOrDefaultAsync(i => i.Id == id);
 
@@ -34,6 +35,7 @@ namespace BioMatricAttendance.Repositories
             var institutes = await _appContext.Institutes
                 .Include(i => i.Region)
                 .Include(i => i.BiomatricDevices)
+                .Include(t => t.District)
                 .Where(i => i.IsDeleted == false)
                 .ToListAsync();
             return institutes;

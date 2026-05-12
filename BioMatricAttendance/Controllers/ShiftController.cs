@@ -23,7 +23,7 @@ namespace BioMatricAttendance.Controllers
 
 
             var response = await _shiftService.AssignShiftAsync(dto);
-            if (!response.success)
+            if (!response.sucess)
                 return BadRequest(response);
 
             return Ok(response);
@@ -84,7 +84,7 @@ namespace BioMatricAttendance.Controllers
         public async Task<IActionResult> RemoveShift(int candidateId)
         {
             var response = await _shiftService.RemoveShiftAsync(candidateId);
-            if (!response.success
+            if (!response.sucess
                 )
                 return BadRequest(response);
             return Ok(response);

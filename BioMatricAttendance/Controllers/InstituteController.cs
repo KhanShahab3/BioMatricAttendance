@@ -26,7 +26,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "No institutes found",
                     Data = new { },
                     StatusCode = 404
@@ -34,8 +34,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Institutes fetched successfully",
+                sucess = true,
+                Message = "Institutes fetched sucessfully",
                 Data = institutes,
                 StatusCode = 200
             });
@@ -50,7 +50,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Institute not found",
                     Data = new { },
                     StatusCode = 404
@@ -58,8 +58,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
-                Message = "Institute fetched successfully",
+                sucess = true,
+                Message = "Institute fetched sucessfully",
                 Data = institute,
                 StatusCode = 200
             });
@@ -72,7 +72,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Institute are not created",
                     Data = new { },
                     StatusCode = 400
@@ -80,7 +80,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
+                sucess = true,
                 Message = "Institute are created succesfully",
                 StatusCode = 201,
                 Data = createdInstitute
@@ -94,7 +94,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Institute are not updated",
                     Data = new { },
                     StatusCode = 400
@@ -102,7 +102,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
+                sucess = true,
                 Message = "Institute are updated succesfully",
                 StatusCode = 200
             });
@@ -115,7 +115,7 @@ namespace BioMatricAttendance.Controllers
             {
                 BadRequest(new APIResponse<object>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Institute are not deleted",
                     Data = new { },
                     StatusCode = 400
@@ -123,7 +123,7 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new APIResponse<object>
             {
-                success = true,
+                sucess = true,
                 Message = "Institute are deleted succesfully",
                 StatusCode = 200
             });
@@ -139,7 +139,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -154,7 +154,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -169,7 +169,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -184,7 +184,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -200,7 +200,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -216,7 +216,7 @@ namespace BioMatricAttendance.Controllers
                 BadRequest(new APIResponse<object>
                 {
                     StatusCode = 400,
-                    success = false,
+                    sucess = false,
 
                 });
             }
@@ -253,7 +253,7 @@ namespace BioMatricAttendance.Controllers
             if (!result)
                 return NotFound("Candidate not found");
 
-            return Ok("Updated successfully");
+            return Ok("Updated sucessfully");
         }
     }
 

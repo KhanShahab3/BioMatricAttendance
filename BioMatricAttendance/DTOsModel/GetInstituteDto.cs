@@ -15,6 +15,8 @@ namespace BioMatricAttendance.DTOsModel
      
         public GetRegionNameDto Region { get; set; }
 
+        public District District { get; set; }
+
         public int DeviceCount { get; set; } 
         public List<GetDeviceNameDto> Devices { get; set; } =new List<GetDeviceNameDto>();
     }

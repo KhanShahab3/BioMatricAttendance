@@ -85,7 +85,7 @@ namespace BioMatricAttendance.Services
             {
                 return new APIResponse<string>
                 {
-                    success = false,
+                    sucess = false,
                     Message = $"Invalid Candidate Id(s): {string.Join(",", invalidIds)}",
                     StatusCode = 400,
                     Data = null
@@ -98,7 +98,7 @@ namespace BioMatricAttendance.Services
             {
                 return new APIResponse<string>
                 {
-                    success = false,
+                    sucess = false,
                     Message = "Shift type is required for assignment",
                     StatusCode = 400,
                     Data = null
@@ -128,7 +128,7 @@ namespace BioMatricAttendance.Services
                 {
                     return new APIResponse<string>
                     {
-                        success = false,
+                        sucess = false,
                         Message = $"Shift with Id {dto.ShiftId} does not exist",
                         StatusCode = 400,
                         Data = null
@@ -158,7 +158,7 @@ namespace BioMatricAttendance.Services
 
             return new APIResponse<string>
             {
-                success = true,
+                sucess = true,
                 Message = message,
                 StatusCode = 200,
                 Data = null
@@ -215,8 +215,8 @@ namespace BioMatricAttendance.Services
 
                 return new APIResponse<string>
                 {
-                    success = true,
-                    Message = $"Candidate {candidateId} shifts removed successfully",
+                    sucess = true,
+                    Message = $"Candidate {candidateId} shifts removed sucessfully",
                     StatusCode = 200
                 };
             }
@@ -224,7 +224,7 @@ namespace BioMatricAttendance.Services
            
             return new APIResponse<string>
             {
-                success = false,
+                sucess = false,
                 Message = $"No assigned shift found for candidate {candidateId}",
                 StatusCode = 404 
             };

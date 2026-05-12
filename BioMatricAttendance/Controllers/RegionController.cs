@@ -24,7 +24,7 @@ namespace BioMatricAttendance.Controllers
             {
                 return NotFound(new
                 {
-                    success = false,
+                    sucess = false,
                     Message = "No region names found",
                     Data = new { },
                     StatusCode = 404
@@ -32,8 +32,8 @@ namespace BioMatricAttendance.Controllers
             }
             return Ok(new
             {
-                success = true,
-                Message = "Region names fetched successfully",
+                sucess = true,
+                Message = "Region names fetched sucessfully",
                 Data = regionNames,
                 StatusCode = 200
             });
