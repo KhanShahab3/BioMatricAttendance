@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BioMatricAttendance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260510094656_keep course code unique")]
-    partial class keepcoursecodeunique
+    [Migration("20260513195521_addforignkey")]
+    partial class addforignkey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

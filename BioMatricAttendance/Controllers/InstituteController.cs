@@ -9,6 +9,7 @@ using System;
 namespace BioMatricAttendance.Controllers
 {
     [Route("api/[controller]")]
+
     [ApiController]
     public class InstituteController : ControllerBase
     {

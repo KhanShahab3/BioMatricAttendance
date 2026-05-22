@@ -41,16 +41,16 @@ namespace BioMatricAttendance.Controllers
         public async Task<IActionResult> GetUnassignDevice()
         {
             var devices = await _deviceService.GetUnassignDevice();
-            if (devices.Count == 0)
-            {
-                return NotFound(new APIResponse<object>
-                {
-                    sucess = false,
-                    Message = "No devices found",
-                    Data = new { },
-                    StatusCode = 404
-                });
-            }
+            //if (devices.Count == 0)
+            //{
+            //    return NotFound(new APIResponse<object>
+            //    {
+            //        sucess = false,
+            //        Message = "No devices found",
+            //        Data = new { },
+            //        StatusCode = 404
+            //    });
+            //}
             return Ok(new APIResponse<object>
             {
                 sucess = true,
