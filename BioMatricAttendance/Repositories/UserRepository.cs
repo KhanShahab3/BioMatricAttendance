@@ -1,4 +1,5 @@
 ﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,7 +35,7 @@ namespace BioMatricAttendance.Repositories
             var user = await _appContext.AppUsers.FindAsync(id);
             return user;
         }
-        public async Task<User> UpdateUser(User user)
+        public async Task<UpdateUserDTO> UpdateUser(UpdateUserDTO user)
         {
             try
             {
@@ -44,7 +45,7 @@ namespace BioMatricAttendance.Repositories
 
                 if (isUser != null)
                 {
-                    isUser.Name = user.Name;
+                  
                     isUser.Email = user.Email;
                     isUser.Password = user.Password;
                 }
@@ -61,6 +62,7 @@ namespace BioMatricAttendance.Repositories
         }
         public async Task<bool> DeleteUser(int id)
         {
+            //use active and inactive for use delete 
             var isUser = await _appContext.AppUsers.FindAsync(id);
             if (isUser != null)
             {

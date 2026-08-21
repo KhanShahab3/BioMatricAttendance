@@ -1,6 +1,8 @@
-﻿using BioMatricAttendance.Models;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Models;
 using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,7 @@ namespace BioMatricAttendance.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "super_admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -80,7 +83,7 @@ namespace BioMatricAttendance.Controllers
             });
         }
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateUser(User user)
+        public async Task<IActionResult> UpdateUser(UpdateUserDTO user)
         {
             var updatedUser = await _userService.UpdateUser(user);
             if (updatedUser == null)

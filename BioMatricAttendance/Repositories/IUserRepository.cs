@@ -1,4 +1,5 @@
-﻿using BioMatricAttendance.Models;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Models;
 
 namespace BioMatricAttendance.Repositories
 {
@@ -7,7 +8,7 @@ namespace BioMatricAttendance.Repositories
       public Task<User> AddUser(User user);
         public Task<User> GetUserById(int id);
         public Task<List<User>> GetAllUsers();
-        public Task<User> UpdateUser(User user);
+        public Task<UpdateUserDTO> UpdateUser(UpdateUserDTO user);
         public Task<bool> DeleteUser(int id);
     }
 }

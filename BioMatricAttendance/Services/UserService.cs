@@ -1,4 +1,5 @@
-﻿using BioMatricAttendance.Models;
+﻿using BioMatricAttendance.DTOsModel;
+using BioMatricAttendance.Models;
 using BioMatricAttendance.Repositories;
 
 namespace BioMatricAttendance.Services
@@ -23,7 +24,7 @@ namespace BioMatricAttendance.Services
         {
             return await _userRepository.GetAllUsers();
         }
-        public async Task<User> UpdateUser(User user)
+        public async Task<UpdateUserDTO> UpdateUser(UpdateUserDTO user)
         {
             return await _userRepository.UpdateUser(user);
         }
