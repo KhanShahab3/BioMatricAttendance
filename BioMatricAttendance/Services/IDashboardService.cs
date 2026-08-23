@@ -10,5 +10,7 @@ namespace BioMatricAttendance.Services
   int? regionId,
   DateTime? startDate,
   DateTime? endDate);
+
+        Task<List<CandidateDTO>> GetCandidate(int? instituteId, int? regionId);
     }
 }

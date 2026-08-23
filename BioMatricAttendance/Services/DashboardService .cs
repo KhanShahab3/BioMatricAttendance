@@ -229,6 +229,48 @@ namespace BioMatricAttendance.Services
             };
         }
 
+        public async Task <List<CandidateDTO>>GetCandidate(int? instituteId, int? regionId)
+        {
+            var deviceQuery = _context.BiomatricDevices.AsQueryable();
+
+
+            if (instituteId.HasValue)
+            {
+                deviceQuery = deviceQuery.Where(d => d.InstituteId == instituteId.Value);
+            }
+
+
+            if (regionId.HasValue)
+            {
+
+                var regionInstituteIds = _context.Institutes
+                    .Where(i => i.RegionId == regionId.Value)
+                    .Select(i => i.Id);
+
+
+                deviceQuery = deviceQuery.Where(d => d.InstituteId != null && regionInstituteIds.Contains(d.InstituteId.Value));
+            }
+
+
+            var matchingDeviceIds = deviceQuery.Select(d => d.DeviceId);
+
+            var result= await _context.Candidates
+                .Where(c => matchingDeviceIds.Contains(c.DeviceId))
+             .Select(c => new CandidateDTO
+             {
+                 Id = c.Id,
+                 Name = c.Name,
+                 Gender = c.gender.HasValue ? c.gender.Value.ToString() : "Unknown",
+                 DeviceId = c.DeviceId,
+                 Previliges = c.Previliges
+             })
+        .ToListAsync();
+
+            return result;
+
+        }
+
+
         private string GetAttendanceStatus(decimal percentage)
         {
             if (percentage >= 80) return "Good";
