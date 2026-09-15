@@ -1,9 +1,11 @@
-﻿using BioMatricAttendance.DTOsModel;
+﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Models;
 using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace BioMatricAttendance.Controllers
@@ -14,9 +16,11 @@ namespace BioMatricAttendance.Controllers
     public class InstituteController : ControllerBase
     {
         private readonly IInstituteService _instituteService;
-        public InstituteController(IInstituteService instituteService)
+        private readonly AppDbContext _appContext;
+        public InstituteController(IInstituteService instituteService,AppDbContext appDbContext)
         {
             _instituteService = instituteService;
+            _appContext = appDbContext;
 
         }
         [HttpGet("all")]
@@ -243,11 +247,34 @@ namespace BioMatricAttendance.Controllers
             if (dto == null) return NotFound();
             return Ok(dto);
         }
-    
+
+
+        [HttpGet("GetInstituteWiseAllCandidates")]
+        public async Task<IActionResult> GetInstituteAllCandidates(int InstituteId)
+        {
+
+
+            var devcies = await _appContext.BiomatricDevices.Where(x => x.InstituteId == InstituteId && x.isRegistered).ToListAsync();
+            var devicesIds = devcies.Select(i => i.DeviceId).ToList();
+
+            var candidates = await _appContext.Candidates
+     .Where(s => devicesIds.Contains(s.DeviceId) && s.Previliges == "NormalUser"||s.Previliges=="Manager")
+     .Select(s => new InstituteCandidateResponse
+     {
+         Id = s.Id,
+         Name = s.Name,
+         gender = s.gender.Value,
+         Designation = s.Designation,
+         Previliges = s.Previliges  
+     })
+     .ToListAsync();
+            return Ok(candidates);
+        }
 
 
 
-    [HttpPut("update-candidate")]
+
+        [HttpPut("update-candidate")]
         public async Task<IActionResult> UpdateCandidate(UpdateCandidateRequest request)
         {
             var result = await _instituteService.UpdateCandidate(request);

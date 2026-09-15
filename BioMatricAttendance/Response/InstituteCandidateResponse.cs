@@ -9,5 +9,6 @@ namespace BioMatricAttendance.Response
         public Gender gender { get; set; }
 
         public string? Designation { get; set; }
+        public string? Previliges { get; set; }
     }
 }
