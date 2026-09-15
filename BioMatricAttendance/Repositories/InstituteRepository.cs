@@ -140,7 +140,8 @@ namespace BioMatricAttendance.Repositories
      {
          Id = s.Id,
          Name = s.Name,
-         gender = s.gender.Value
+         gender = s.gender.Value,
+         Designation=s.Designation
      })
      .ToListAsync();
             return candidates;
@@ -156,7 +157,8 @@ namespace BioMatricAttendance.Repositories
      {
          Id = s.Id,
          Name = s.Name,
-         gender = s.gender.Value
+         gender = s.gender.Value,
+         Designation=s.Designation
      })
      .ToListAsync();
             return facilities;

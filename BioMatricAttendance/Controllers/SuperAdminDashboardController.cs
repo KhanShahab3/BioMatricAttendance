@@ -1,4 +1,5 @@
 ﻿using BioMatricAttendance.AttendenceContext;
+using BioMatricAttendance.DTOsModel;
 using BioMatricAttendance.Response;
 using BioMatricAttendance.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -60,20 +61,20 @@ namespace BioMatricAttendance.Controllers
             return Ok(result);
         }
 
-        [HttpPut("candidates/{id}/designation")]
-        public async Task<IActionResult> UpdateCandidateDesignation(int id, [FromBody] string designation)
+        [HttpPut("candidates/assign/designation")]
+        public async Task<IActionResult> UpdateCandidateDesignation(AssignDesignation assign)
         {
-            var candidate = await _context.Candidates.FindAsync(id);
+            var candidate = await _context.Candidates.FindAsync(assign.Id);
 
             if (candidate == null)
             {
-                return NotFound($"Candidate with ID {id} not found.");
+                return NotFound($"Candidate with ID {assign.Id} not found.");
             }
 
-            
-            candidate.Designation = designation; 
+            candidate.Name = assign.Name;
+            candidate.Designation = assign.Designation;
+            candidate.gender = assign.Gender;
 
-          
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Designation updated successfully successfully." });
