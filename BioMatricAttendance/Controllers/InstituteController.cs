@@ -250,24 +250,31 @@ namespace BioMatricAttendance.Controllers
 
 
         [HttpGet("GetInstituteWiseAllCandidates")]
-        public async Task<IActionResult> GetInstituteAllCandidates(int InstituteId)
+        public async Task<IActionResult> GetInstituteAllCandidates(int? InstituteId)
         {
 
 
-            var devcies = await _appContext.BiomatricDevices.Where(x => x.InstituteId == InstituteId && x.isRegistered).ToListAsync();
-            var devicesIds = devcies.Select(i => i.DeviceId).ToList();
+            var query = _appContext.Candidates.AsQueryable();
 
-            var candidates = await _appContext.Candidates
-     .Where(s => devicesIds.Contains(s.DeviceId) && s.Previliges == "NormalUser"||s.Previliges=="Manager")
-     .Select(s => new InstituteCandidateResponse
-     {
-         Id = s.Id,
-         Name = s.Name,
-         gender = s.gender.Value,
-         Designation = s.Designation,
-         Previliges = s.Previliges  
-     })
-     .ToListAsync();
+            if (InstituteId.HasValue)
+            {
+                query = query.Where(c =>
+                    _appContext.BiomatricDevices.Any(d =>
+                        d.DeviceId == c.DeviceId &&
+                        d.InstituteId == InstituteId.Value &&
+                        d.isRegistered));
+            }
+
+            var candidates = await query
+                .Select(s => new InstituteCandidateResponse
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    gender = s.gender.Value,
+                    Designation = s.Designation,
+                    Previliges = s.Previliges
+                })
+                .ToListAsync();
             return Ok(candidates);
         }
 
