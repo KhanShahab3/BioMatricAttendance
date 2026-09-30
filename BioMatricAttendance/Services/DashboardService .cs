@@ -261,6 +261,7 @@ namespace BioMatricAttendance.Services
                  Id = c.Id,
                  Name = c.Name,
                  Gender = c.gender.HasValue ? c.gender.Value.ToString() : "Unknown",
+                 Designation=c.Designation,
                  DeviceId = c.DeviceId,
                  Previliges = c.Previliges
              })
