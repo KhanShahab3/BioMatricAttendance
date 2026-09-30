@@ -272,6 +272,7 @@ namespace BioMatricAttendance.Controllers
                     Name = s.Name,
                     gender = s.gender.Value,
                     Designation = s.Designation,
+                    EmployeeId=s.EmployeeId,
                     Previliges = s.Previliges
                 })
                 .ToListAsync();
