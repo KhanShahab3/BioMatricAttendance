@@ -86,6 +86,7 @@ namespace BioMatricAttendance.Repositories
                 isInstitute.Address = institute.Address;
                 isInstitute.ContactNumber = institute.ContactNumber;
                 isInstitute.Email = institute.Email;
+                isInstitute.DDOCODE = institute.DDOCODE;
                 isInstitute.ContactPerson = institute.ContactPerson;
                 isInstitute.UpdatedAt = DateTime.UtcNow;
                 isInstitute.RegionId = institute.RegionId;

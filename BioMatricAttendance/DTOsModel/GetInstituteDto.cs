@@ -11,6 +11,8 @@ namespace BioMatricAttendance.DTOsModel
         public string ContactNumber { get; set; }
         public string Email { get; set; }
         public string ContactPerson { get; set; }
+
+        public string? DDOCODE { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
      
         public GetRegionNameDto Region { get; set; }

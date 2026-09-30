@@ -11,6 +11,8 @@
         public DateTime CreatedAt { get; set; }= DateTime.Now;
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; } = false;
+
+        public string? DDOCODE { get; set; }
         public int RegionId { get; set; }
         public Region Region { get; set; }
         public int DistrictId { get; set; }

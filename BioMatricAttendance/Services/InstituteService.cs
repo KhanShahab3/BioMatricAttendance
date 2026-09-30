@@ -98,6 +98,7 @@ namespace BioMatricAttendance.Services
                     ContactNumber = dto.ContactNumber,
                     DistrictId = dto.DistrictId,
                     Email = dto.Email,
+                    DDOCODE = dto.DDOCODE,
                     ContactPerson = dto.ContactPerson,
                     RegionId = dto.RegionId,
                     CreatedAt = dto.CreatedAt
@@ -165,6 +166,7 @@ namespace BioMatricAttendance.Services
                 Address = OneInstiute.Address,
                 ContactNumber = OneInstiute.ContactNumber,
                 Email = OneInstiute.Email,
+                DDOCODE=OneInstiute.DDOCODE,
                 ContactPerson = OneInstiute.ContactPerson,
                 CreatedAt = OneInstiute.CreatedAt,
                 Region = new GetRegionNameDto
@@ -222,6 +224,7 @@ namespace BioMatricAttendance.Services
                 Address = institute.Address,
                 ContactNumber = institute.ContactNumber,
                 Email = institute.Email,
+                DDOCODE = institute.DDOCODE,
                 ContactPerson = institute.ContactPerson,
                 CreatedAt = institute.CreatedAt,
                 Region = new GetRegionNameDto
@@ -278,6 +281,7 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
             Address = institute.Address,
             ContactNumber = institute.ContactNumber,
             Email = institute.Email,
+            DDOCODE=institute.DDOCODE,
             DistrictId = institute.DistrictId,
             ContactPerson = institute.ContactPerson,
             RegionId = institute.RegionId,
