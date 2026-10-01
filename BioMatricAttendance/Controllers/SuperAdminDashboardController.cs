@@ -73,6 +73,7 @@ namespace BioMatricAttendance.Controllers
 
             candidate.Name = assign.Name;
             candidate.Designation = assign.Designation;
+            candidate.EmployeeId = assign.EmployeeId;
             candidate.gender = assign.Gender;
 
             await _context.SaveChangesAsync();

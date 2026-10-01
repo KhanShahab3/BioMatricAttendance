@@ -409,6 +409,8 @@ public async Task<UpdateInstituteDto> UpdateInstitute(UpdateInstituteDto institu
 
             candidate.Name = request.Name;
             candidate.gender = request.Gender;
+            candidate.Designation = request.Designation;
+            candidate.EmployeeId = request.EmployeeId;
 
             await _context.SaveChangesAsync();
             return true;

@@ -41,6 +41,7 @@ namespace BioMatricAttendance.Services
                 {
                     CandidateId = c.Id,
                     Name = c.Name,
+                    EmployeeId=c.EmployeeId,
                     ShiftId = _appDbContext.CandidateShifts
                         .Where(cs => cs.CandidateId == c.Id)
                         .OrderByDescending(cs => cs.CreatedAt)

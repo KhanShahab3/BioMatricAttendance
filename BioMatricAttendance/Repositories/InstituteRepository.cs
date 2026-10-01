@@ -142,6 +142,7 @@ namespace BioMatricAttendance.Repositories
          Id = s.Id,
          Name = s.Name,
          gender = s.gender.Value,
+         EmployeeId=s.EmployeeId,
          Designation=s.Designation
      })
      .ToListAsync();
